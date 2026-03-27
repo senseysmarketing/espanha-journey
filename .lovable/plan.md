@@ -1,20 +1,24 @@
 
 
-## Bug Fix: Telas em branco ao sair da aba Segurança
+## Padronizar upload do Scanner igual ao Cofre
 
-### Causa raiz
-
-O `SecuritySection` usa `layoutId="security-tab-active"` no Framer Motion para animar as pill tabs internas. Quando o usuário troca de aba no Floating Dock, o `AnimatePresence mode="wait"` no `Index.tsx` precisa completar a animação de saída antes de montar o novo conteúdo. O `layoutId` dentro do componente que está desmontando interfere com essa animação de saída, fazendo com que ela nunca complete — resultado: tela em branco.
+### Problema
+O `ContractScanner` usa `glass squircle` (fundo glassmorphism sólido) na área de upload, enquanto o `DocumentVault` usa fundo transparente com apenas `border-2 border-dashed` e `rounded-3xl` — sem classe `glass`.
 
 ### Solução
 
-**`SecuritySection.tsx`**: Remover `layoutId="security-tab-active"` do `motion.div` das pill tabs internas e substituir por uma animação simples sem `layoutId` (ex: apenas um `motion.div` com `animate` direto, sem layout animation cross-component).
+**`ContractScanner.tsx`** — Alterar o `motion.label` de upload (linha 118-122):
 
-Isso elimina o conflito entre o `layoutId` interno e o `AnimatePresence mode="wait"` do pai, permitindo que as animações de saída completem normalmente.
+- Remover: `glass squircle`
+- Adicionar: `rounded-3xl` (igual ao Cofre)
+- Adicionar botão "Selecionar arquivo" com estilo `bg-primary/10 text-primary rounded-xl` (igual ao Cofre)
+- Manter o `border-2 border-dashed` que já existe
+
+O resultado será um fundo vazado/transparente com borda tracejada, idêntico ao do Cofre.
 
 ### Arquivo alterado
 
 | Arquivo | Mudança |
 |---------|---------|
-| `src/components/SecuritySection.tsx` | Trocar `layoutId="security-tab-active"` por animação local simples (sem layoutId) |
+| `src/components/ContractScanner.tsx` | Trocar `glass squircle` por `rounded-3xl`, adicionar botão "Selecionar arquivo" |
 
