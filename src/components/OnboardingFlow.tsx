@@ -77,7 +77,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.95 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-lg px-6"
+            className="relative z-10 w-full max-w-lg px-6"
           >
             {step === 0 && (
               <div className="text-center">
