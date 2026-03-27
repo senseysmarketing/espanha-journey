@@ -50,6 +50,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        coral: "hsl(var(--coral))",
         journey: {
           pending: "hsl(var(--journey-pending))",
           active: "hsl(var(--journey-active))",
@@ -92,6 +93,10 @@ export default {
           "0%": { transform: "translate(0,0) scale(1)", opacity: "1" },
           "100%": { transform: "translate(var(--tx), var(--ty)) scale(0)", opacity: "0" },
         },
+        "scan-line": {
+          "0%": { background: "linear-gradient(180deg, transparent 0%, hsla(32,95%,55%,0.15) 50%, transparent 100%)", backgroundPosition: "0 -100%" },
+          "100%": { background: "linear-gradient(180deg, transparent 0%, hsla(32,95%,55%,0.15) 50%, transparent 100%)", backgroundPosition: "0 200%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -99,6 +104,7 @@ export default {
         "float": "float 4s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "particle": "particle 1s ease-out forwards",
+        "scan-line": "scan-line 2s ease-in-out infinite",
       },
     },
   },

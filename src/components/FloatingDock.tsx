@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { Map, FolderLock, Bell, Bot, User } from "lucide-react";
+import { Map, FolderLock, Bell, Shield, Bot, User } from "lucide-react";
 
 const dockItems = [
-  { icon: Map, label: "Minha Jornada", id: "journey" },
+  { icon: Map, label: "Jornada", id: "journey" },
   { icon: FolderLock, label: "Cofre", id: "vault" },
-  { icon: Bell, label: "Cita Hunter", id: "cita" },
-  { icon: Bot, label: "IA Concierge", id: "ai" },
+  { icon: Bell, label: "Cita", id: "cita" },
+  { icon: Shield, label: "Segurança", id: "security" },
+  { icon: Bot, label: "IA", id: "ai" },
   { icon: User, label: "Perfil", id: "profile" },
 ];
 
