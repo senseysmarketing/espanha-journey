@@ -106,9 +106,7 @@ const ExploreMap = () => {
                   if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
                 },
               }}
-            >
-              <Popup>{poi.nome}</Popup>
-            </CircleMarker>
+            />
           ))}
         </MapContainer>
       </div>
