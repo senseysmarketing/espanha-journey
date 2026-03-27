@@ -1,23 +1,20 @@
 
 
-## Centralizar a Seção de Segurança (igual ao Cofre)
+## Bug Fix: Telas em branco ao sair da aba Segurança
 
-### Problema
+### Causa raiz
 
-A `SecuritySection` usa `px-6` com largura total, sem centralização. O `DocumentVault` usa `max-w-lg mx-auto px-4 py-8 pb-32` para centralizar o conteúdo.
+O `SecuritySection` usa `layoutId="security-tab-active"` no Framer Motion para animar as pill tabs internas. Quando o usuário troca de aba no Floating Dock, o `AnimatePresence mode="wait"` no `Index.tsx` precisa completar a animação de saída antes de montar o novo conteúdo. O `layoutId` dentro do componente que está desmontando interfere com essa animação de saída, fazendo com que ela nunca complete — resultado: tela em branco.
 
 ### Solução
 
-Aplicar o mesmo padrão de layout do `DocumentVault` à `SecuritySection`:
+**`SecuritySection.tsx`**: Remover `layoutId="security-tab-active"` do `motion.div` das pill tabs internas e substituir por uma animação simples sem `layoutId` (ex: apenas um `motion.div` com `animate` direto, sem layout animation cross-component).
 
-**`SecuritySection.tsx`:**
-- Trocar o wrapper de `<div className="pb-28 space-y-6">` para `<div className="w-full max-w-lg mx-auto px-4 py-8 pb-32">`
-- Centralizar o header (adicionar `text-center`)
-- Centralizar as pill tabs (adicionar `flex justify-center`)
-- Remover os `px-6` internos (o padding já vem do wrapper)
+Isso elimina o conflito entre o `layoutId` interno e o `AnimatePresence mode="wait"` do pai, permitindo que as animações de saída completem normalmente.
 
-**`ContractScanner.tsx`:**
-- Remover paddings laterais próprios que conflitem com o layout centralizado do pai
+### Arquivo alterado
 
-Isso garante que a seção de Segurança tenha a mesma largura máxima, centralização e espaçamento do Cofre de Documentos.
+| Arquivo | Mudança |
+|---------|---------|
+| `src/components/SecuritySection.tsx` | Trocar `layoutId="security-tab-active"` por animação local simples (sem layoutId) |
 
