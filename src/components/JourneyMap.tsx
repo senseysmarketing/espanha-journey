@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight, Play, FileText, X } from "lucide-react";
+import { Check, ChevronRight, FileText } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import MilestoneVideoPlayer from "@/components/MilestoneVideoPlayer";
+import SuccessParticles from "@/components/SuccessParticles";
 
 interface Milestone {
   id: string;
@@ -10,6 +13,7 @@ interface Milestone {
   status: "complete" | "active" | "pending";
   checklist: string[];
   mentorTip: string;
+  videoUrl: string;
 }
 
 const milestones: Milestone[] = [
@@ -21,6 +25,7 @@ const milestones: Milestone[] = [
     status: "complete",
     checklist: ["Passaporte original", "Contrato de aluguel", "Formulário de alta"],
     mentorTip: "Chegue cedo! Algumas cidades aceitam sem cita previa.",
+    videoUrl: "",
   },
   {
     id: "nie",
@@ -30,6 +35,7 @@ const milestones: Milestone[] = [
     status: "active",
     checklist: ["Formulário EX-15", "Taxa 790 código 012", "Foto 3x4", "Empadronamiento"],
     mentorTip: "O NIE é diferente do TIE. O NIE é o número, o TIE é o cartão físico.",
+    videoUrl: "",
   },
   {
     id: "seguridad-social",
@@ -39,6 +45,7 @@ const milestones: Milestone[] = [
     status: "pending",
     checklist: ["NIE", "Contrato de trabalho ou alta de autônomo", "Formulário TA.1"],
     mentorTip: "Autônomos precisam do alta de autônomo antes.",
+    videoUrl: "",
   },
   {
     id: "cuenta-bancaria",
@@ -48,6 +55,7 @@ const milestones: Milestone[] = [
     status: "pending",
     checklist: ["NIE", "Empadronamiento", "Comprovante de renda"],
     mentorTip: "Bancos digitais como N26 ou Revolut aceitam com NIE provisório.",
+    videoUrl: "",
   },
   {
     id: "tarjeta-sanitaria",
@@ -57,6 +65,7 @@ const milestones: Milestone[] = [
     status: "pending",
     checklist: ["Empadronamiento", "Alta Seguridad Social", "NIE"],
     mentorTip: "Vá ao Centro de Salud do seu bairro com todos os documentos.",
+    videoUrl: "",
   },
   {
     id: "residencia",
@@ -66,6 +75,7 @@ const milestones: Milestone[] = [
     status: "pending",
     checklist: ["TIE vigente", "Empadronamiento atualizado", "Comprovante de renda", "Seguro médico"],
     mentorTip: "Comece 60 dias antes do vencimento para evitar problemas.",
+    videoUrl: "",
   },
 ];
 
@@ -75,11 +85,24 @@ interface JourneyMapProps {
 
 const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [particleTrigger, setParticleTrigger] = useState<string | null>(null);
 
   const handleNodeClick = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
     if (navigator.vibrate) navigator.vibrate(5);
   };
+
+  const handleCheck = useCallback((milestoneId: string, itemIdx: number) => {
+    const key = `${milestoneId}-${itemIdx}`;
+    setCheckedItems((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      if (next[key]) {
+        setParticleTrigger(key);
+      }
+      return next;
+    });
+  }, []);
 
   const statusColor = (status: string) => {
     switch (status) {
@@ -109,7 +132,6 @@ const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
       </motion.div>
 
       <div className="relative">
-        {/* Vertical line */}
         <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-journey-complete via-journey-active to-border" />
 
         <div className="space-y-4">
@@ -120,13 +142,11 @@ const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.08 * i, duration: 0.4 }}
             >
-              {/* Node */}
               <motion.button
                 onClick={() => handleNodeClick(m.id)}
-                className={`w-full flex items-center gap-4 p-4 pl-0 text-left group`}
+                className="w-full flex items-center gap-4 p-4 pl-0 text-left group"
                 whileTap={{ scale: 0.98 }}
               >
-                {/* Dot */}
                 <div className="relative z-10 flex-shrink-0 w-12 flex justify-center">
                   <motion.div
                     className={`w-4 h-4 rounded-full ${statusColor(m.status)} ${statusGlow(m.status)}`}
@@ -135,12 +155,9 @@ const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
                   />
                 </div>
 
-                {/* Content */}
                 <div
                   className={`flex-1 p-4 rounded-2xl transition-all ${
-                    expandedId === m.id
-                      ? "glass-active"
-                      : "glass hover:border-muted-foreground/20"
+                    expandedId === m.id ? "glass-active" : "glass hover:border-muted-foreground/20"
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -166,11 +183,9 @@ const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
                 </div>
               </motion.button>
 
-              {/* Expanded Card */}
               <AnimatePresence>
                 {expandedId === m.id && (
                   <motion.div
-                    layoutId={`card-${m.id}`}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -178,16 +193,8 @@ const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
                     className="ml-12 overflow-hidden"
                   >
                     <div className="glass-active squircle-sm p-5 space-y-4 mb-2">
-                      {/* Mentor video placeholder */}
-                      <div className="rounded-xl bg-secondary/50 border border-border/50 p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Play className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Vídeo do Mentor</p>
-                          <p className="text-xs text-muted-foreground">Dicas de quem já passou por isso</p>
-                        </div>
-                      </div>
+                      {/* Video Player */}
+                      <MilestoneVideoPlayer videoUrl={m.videoUrl} title={m.title} />
 
                       {/* Mentor tip */}
                       <div className="rounded-xl bg-primary/5 border border-primary/10 p-3">
@@ -200,18 +207,25 @@ const JourneyMap = ({ onSelectMilestone }: JourneyMapProps) => {
                           <FileText className="w-4 h-4" /> O que levar
                         </h4>
                         <div className="space-y-2">
-                          {m.checklist.map((item, idx) => (
-                            <label
-                              key={idx}
-                              className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                            >
-                              <input
-                                type="checkbox"
-                                className="w-4 h-4 rounded border-border accent-primary"
-                              />
-                              {item}
-                            </label>
-                          ))}
+                          {m.checklist.map((item, idx) => {
+                            const key = `${m.id}-${idx}`;
+                            const isChecked = !!checkedItems[key];
+                            return (
+                              <div key={idx} className="relative">
+                                <label className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                                  <Checkbox
+                                    checked={isChecked}
+                                    onCheckedChange={() => handleCheck(m.id, idx)}
+                                  />
+                                  <span className={isChecked ? "line-through opacity-60" : ""}>{item}</span>
+                                </label>
+                                <SuccessParticles
+                                  trigger={particleTrigger === key}
+                                  onComplete={() => setParticleTrigger(null)}
+                                />
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>

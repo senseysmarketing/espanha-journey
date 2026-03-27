@@ -6,7 +6,7 @@ import JourneyMap from "@/components/JourneyMap";
 import NationalityClock from "@/components/NationalityClock";
 import DocumentVault from "@/components/DocumentVault";
 import CitaHunter from "@/components/CitaHunter";
-import AIConsierge from "@/components/AIConsierge";
+import MentorChat from "@/components/MentorChat";
 import ProfileView from "@/components/ProfileView";
 import SecuritySection from "@/components/SecuritySection";
 import ExploreSection from "@/components/ExploreSection";
@@ -18,7 +18,7 @@ const tabComponents: Record<string, React.FC> = {
   cita: CitaHunter,
   security: SecuritySection,
   explore: ExploreSection,
-  ai: AIConsierge,
+  ai: MentorChat,
   profile: ProfileView,
 };
 

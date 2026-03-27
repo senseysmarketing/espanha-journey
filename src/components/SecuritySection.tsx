@@ -4,7 +4,7 @@ import { ScanSearch, BarChart3, Users } from "lucide-react";
 import ContractScanner from "./ContractScanner";
 import AuditDashboard from "./AuditDashboard";
 import VerifiedProviders from "./VerifiedProviders";
-import MentorTipButton from "./MentorTipButton";
+
 
 type SubView = "scanner" | "audit" | "providers";
 
@@ -84,7 +84,7 @@ const SecuritySection = () => {
         {activeView === "providers" && <VerifiedProviders />}
       </motion.div>
 
-      <MentorTipButton />
+      
     </div>
   );
 };
