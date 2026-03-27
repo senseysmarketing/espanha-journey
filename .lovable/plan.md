@@ -1,16 +1,39 @@
 
 
-## Padronizar cores do Mentor para tom cinza
+## Remover Concierge e unificar no Mentor
 
-Trocar todas as ocorrências de `glass-aurora` por `glass` no `MentorChat.tsx`, alinhando visualmente com as demais telas.
+### Resumo
+Remover a aba "Concierge" da seção Explorar e expandir o prompt do Mentor para também cobrir recomendações de cidades/destino, eliminando redundância.
 
 ### Alterações
 
-**`src/components/MentorChat.tsx`**:
-- Linha 160: quick action buttons — `glass-aurora` → `glass`
-- Linha 181: mensagens do assistente — `glass-aurora` → `glass`
-- Linha 210: indicador de "pensando" — `glass-aurora` → `glass`
-- Linha 187: cor do label "Mentor" — `text-accent` → `text-primary` (para manter destaque sutil no tom laranja/dourado da paleta)
+**1. `src/components/ExploreSection.tsx`**
+- Remover a aba `concierge` do array `tabs`
+- Remover import do `ExploreConcierge`
+- Remover entrada `concierge` do `tabContent`
+- Manter `mapa` como tab default (já é)
 
-Nenhum outro arquivo precisa ser alterado.
+**2. `supabase/functions/mentor-chat/index.ts`**
+- Expandir o `SYSTEM_PROMPT` para incluir o conhecimento de concierge de destinos:
+  - Recomendação de cidades (Madrid, Barcelona, Valencia, Málaga, Sevilla, Bilbao, Alicante, Granada, Zaragoza)
+  - Custo de vida, comunidade brasileira, clima, segurança
+  - Perfis (Trabalho Remoto, Família, Estudante)
+  - Orçamento mensal
+- Deploy da edge function atualizada
+
+**3. `src/components/MentorChat.tsx`**
+- Adicionar quick actions de destino junto aos existentes: "Cidades para morar", "Custo de vida"
+- Atualizar placeholder do input para algo mais abrangente: "Pergunte sobre burocracia ou cidades..."
+
+**4. Limpeza (opcional)**
+- `src/components/ExploreConcierge.tsx` pode ser removido (não mais referenciado)
+- `supabase/functions/city-concierge/index.ts` pode ser removido futuramente
+
+### Arquivos afetados
+| Arquivo | Ação |
+|---|---|
+| `src/components/ExploreSection.tsx` | Modificar — remover aba Concierge |
+| `supabase/functions/mentor-chat/index.ts` | Modificar — expandir prompt com conhecimento de destinos |
+| `src/components/MentorChat.tsx` | Modificar — adicionar quick actions de destino |
+| `src/components/ExploreConcierge.tsx` | Remover |
 
