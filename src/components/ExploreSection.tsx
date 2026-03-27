@@ -1,20 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Map, BarChart3, Plane } from "lucide-react";
-import ExploreConcierge from "./ExploreConcierge";
+import { Map, BarChart3, Plane } from "lucide-react";
 import ExploreMap from "./ExploreMap";
 import NeighborhoodCompare from "./NeighborhoodCompare";
 import FlightSearch from "./FlightSearch";
 
 const tabs = [
-  { id: "concierge", label: "Concierge", icon: MessageCircle },
   { id: "mapa", label: "Mapa", icon: Map },
   { id: "bairros", label: "Bairros", icon: BarChart3 },
   { id: "passagens", label: "Passagens", icon: Plane },
 ];
 
 const tabContent: Record<string, React.FC> = {
-  concierge: ExploreConcierge,
   mapa: ExploreMap,
   bairros: NeighborhoodCompare,
   passagens: FlightSearch,
