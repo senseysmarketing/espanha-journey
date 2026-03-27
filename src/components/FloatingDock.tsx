@@ -17,10 +17,10 @@ interface FloatingDockProps {
 const FloatingDock = ({ activeTab, onTabChange }: FloatingDockProps) => {
   return (
     <motion.div
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      initial={{ y: 100, opacity: 0, x: "-50%" }}
+      animate={{ y: 0, opacity: 1, x: "-50%" }}
       transition={{ type: "spring", stiffness: 200, damping: 25, delay: 0.5 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+      className="fixed bottom-6 left-1/2 z-50"
     >
       <div className="glass-dock squircle-sm flex items-center gap-1 px-3 py-2.5">
         {dockItems.map((item) => {
