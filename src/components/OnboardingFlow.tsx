@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plane, Briefcase, Heart, Globe, ArrowRight, Sparkles } from "lucide-react";
+import spainBg from "@/assets/spain-mesh-bg.jpg";
 
 const profiles = [
   {
@@ -65,7 +66,9 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-background bg-mesh flex items-center justify-center z-50 overflow-hidden">
+    <div className="fixed inset-0 bg-background flex items-center justify-center z-50 overflow-hidden">
+      <img src={spainBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
       <AnimatePresence mode="wait">
         {!isTransitioning ? (
           <motion.div
