@@ -115,10 +115,10 @@ const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
             onDragLeave={handleDragOut}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            className={`glass squircle cursor-pointer p-10 flex flex-col items-center gap-4 border-2 border-dashed transition-all ${
+            className={`rounded-3xl cursor-pointer p-8 flex flex-col items-center gap-4 border-2 border-dashed transition-all text-center ${
               isDragging
-                ? "border-primary/60 bg-primary/5 glow-primary"
-                : "border-border/50 hover:border-primary/30"
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-muted-foreground/30"
             }`}
           >
             <input
@@ -131,12 +131,15 @@ const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
               animate={isDragging ? { scale: 1.1, y: -5 } : { scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Upload className={`w-12 h-12 transition-colors ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
+              <Upload className={`w-10 h-10 transition-colors ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
             </motion.div>
             <div className="text-center">
-              <p className="text-foreground font-medium">Arraste seu contrato aqui</p>
-              <p className="text-muted-foreground text-sm mt-1">PDF, TXT ou DOC — análise em segundos</p>
+              <p className="text-foreground font-medium mb-1">Arraste seu contrato aqui</p>
+              <p className="text-muted-foreground text-sm">PDF, TXT ou DOC — análise em segundos</p>
             </div>
+            <span className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary rounded-xl text-sm font-medium cursor-pointer hover:bg-primary/20 transition-colors">
+              <Upload className="w-4 h-4" /> Selecionar arquivo
+            </span>
           </motion.label>
         )}
       </AnimatePresence>
