@@ -150,3 +150,14 @@ Z-0   ┌──────────────────┐  Mapa Leaflet
 
 **Nota**: Auth não está implementada. RLS exige `authenticated` — funcionalidades completas dependem de login futuro. O chat IA funciona sem auth (edge function pública).
 
+---
+
+## Módulo de Relocation e Experiência
+
+### Implementado
+- Tabelas `city_data` e `poi_locations` criadas com RLS
+- Edge function `city-concierge` (streaming SSE via Lovable AI Gateway)
+- Aba "Explorar" (Globe) no Floating Dock
+- 4 sub-módulos: Concierge IA, Mapa Leaflet, Bússola de Aluguel, Rotas de Passagens
+- Design Liquid Glass com hierarquia Z (mapa Z-0, filtros Z-10, cards Z-50)
+- Haptic feedback no mobile

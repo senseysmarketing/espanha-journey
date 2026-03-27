@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      city_data: {
+        Row: {
+          clima: string | null
+          created_at: string | null
+          custo_vida_medio: number | null
+          foto_url: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          nome: string
+          seguranca_index: number | null
+        }
+        Insert: {
+          clima?: string | null
+          created_at?: string | null
+          custo_vida_medio?: number | null
+          foto_url?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nome: string
+          seguranca_index?: number | null
+        }
+        Update: {
+          clima?: string | null
+          created_at?: string | null
+          custo_vida_medio?: number | null
+          foto_url?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nome?: string
+          seguranca_index?: number | null
+        }
+        Relationships: []
+      }
       contracts_audit: {
         Row: {
           created_at: string | null
@@ -98,6 +134,39 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      poi_locations: {
+        Row: {
+          categoria: string
+          cidade: string | null
+          created_at: string | null
+          descricao: string | null
+          id: string
+          latitude: number
+          longitude: number
+          nome: string
+        }
+        Insert: {
+          categoria: string
+          cidade?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          nome: string
+        }
+        Update: {
+          categoria?: string
+          cidade?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          nome?: string
         }
         Relationships: []
       }

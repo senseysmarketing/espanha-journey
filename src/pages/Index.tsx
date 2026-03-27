@@ -9,6 +9,7 @@ import CitaHunter from "@/components/CitaHunter";
 import AIConsierge from "@/components/AIConsierge";
 import ProfileView from "@/components/ProfileView";
 import SecuritySection from "@/components/SecuritySection";
+import ExploreSection from "@/components/ExploreSection";
 import SVGFilters from "@/components/SVGFilters";
 
 const tabComponents: Record<string, React.FC> = {
@@ -16,6 +17,7 @@ const tabComponents: Record<string, React.FC> = {
   vault: DocumentVault,
   cita: CitaHunter,
   security: SecuritySection,
+  explore: ExploreSection,
   ai: AIConsierge,
   profile: ProfileView,
 };
