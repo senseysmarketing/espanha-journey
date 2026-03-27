@@ -146,6 +146,23 @@
     box-shadow: 0 0 40px hsla(12, 76%, 61%, 0.15), 0 8px 32px rgba(0,0,0,0.3);
   }
 
+  .glass-aurora {
+    background: linear-gradient(135deg,
+      hsla(180, 80%, 55%, 0.08),
+      hsla(270, 70%, 55%, 0.08),
+      hsla(330, 80%, 55%, 0.08));
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid hsla(270, 70%, 55%, 0.15);
+    box-shadow: 0 0 40px hsla(270, 70%, 55%, 0.1);
+  }
+
+  .glow-aurora {
+    box-shadow: 0 0 40px hsla(180, 80%, 55%, 0.15),
+                0 0 80px hsla(270, 70%, 55%, 0.1),
+                0 0 120px hsla(330, 80%, 55%, 0.05);
+  }
+
   .bg-mesh {
     background-image:
       radial-gradient(at 20% 30%, hsla(32, 95%, 55%, 0.08) 0px, transparent 50%),

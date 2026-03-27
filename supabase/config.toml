@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.city-concierge]
 verify_jwt = false
+
+[functions.mentor-chat]
+verify_jwt = false
