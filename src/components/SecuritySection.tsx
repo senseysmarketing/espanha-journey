@@ -48,9 +48,11 @@ const SecuritySection = () => {
               >
                 {isActive && (
                   <motion.div
-                    layoutId="security-tab-active"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                     className="absolute inset-0 bg-primary/10 rounded-2xl border border-primary/20"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    transition={{ duration: 0.2 }}
                   />
                 )}
                 <tab.icon className="w-4 h-4 relative z-10" />
