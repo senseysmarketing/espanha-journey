@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      contracts_audit: {
+        Row: {
+          created_at: string | null
+          file_name: string | null
+          findings_json: Json | null
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name?: string | null
+          findings_json?: Json | null
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string | null
+          findings_json?: Json | null
+          id?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string | null
@@ -128,6 +155,45 @@ export type Database = {
           id?: string
           return_date?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      verified_providers: {
+        Row: {
+          avatar_url: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          link_afiliado: string | null
+          name: string | null
+          rating: number | null
+          selo_status: string | null
+          video_url: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          link_afiliado?: string | null
+          name?: string | null
+          rating?: number | null
+          selo_status?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          link_afiliado?: string | null
+          name?: string | null
+          rating?: number | null
+          selo_status?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }

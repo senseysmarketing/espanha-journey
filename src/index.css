@@ -36,6 +36,9 @@
 
     --radius: 1.5rem;
 
+    /* Coral alert */
+    --coral: 12 76% 61%;
+
     /* Liquid Glass tokens */
     --glass-bg: 220 15% 15% / 0.4;
     --glass-bg-active: 220 15% 18% / 0.6;
@@ -133,6 +136,14 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .glass-coral {
+    background: hsla(12, 76%, 61%, 0.08);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid hsla(12, 76%, 61%, 0.25);
+    box-shadow: 0 0 40px hsla(12, 76%, 61%, 0.15), 0 8px 32px rgba(0,0,0,0.3);
   }
 
   .bg-mesh {

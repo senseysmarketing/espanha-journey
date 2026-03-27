@@ -8,12 +8,14 @@ import DocumentVault from "@/components/DocumentVault";
 import CitaHunter from "@/components/CitaHunter";
 import AIConsierge from "@/components/AIConsierge";
 import ProfileView from "@/components/ProfileView";
+import SecuritySection from "@/components/SecuritySection";
 import SVGFilters from "@/components/SVGFilters";
 
 const tabComponents: Record<string, React.FC> = {
   journey: JourneyMap,
   vault: DocumentVault,
   cita: CitaHunter,
+  security: SecuritySection,
   ai: AIConsierge,
   profile: ProfileView,
 };
