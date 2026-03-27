@@ -79,7 +79,7 @@ const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
   };
 
   return (
-    <div className="px-4">
+    <div>
       <AnimatePresence mode="wait">
         {isScanning ? (
           <motion.div

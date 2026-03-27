@@ -24,15 +24,15 @@ const SecuritySection = () => {
   };
 
   return (
-    <div className="pb-28 space-y-6">
+    <div className="w-full max-w-lg mx-auto px-4 py-8 pb-32 space-y-6">
       {/* Section header */}
-      <div className="px-6">
+      <div className="text-center">
         <h1 className="text-2xl font-bold text-gradient-primary">Proteção & Segurança</h1>
         <p className="text-muted-foreground text-sm mt-1">Seu anjo da guarda jurídico na Espanha</p>
       </div>
 
       {/* Glass pill tabs */}
-      <div className="px-6">
+      <div className="flex justify-center">
         <div className="glass squircle-sm inline-flex items-center gap-1 p-1">
           {tabs.map((tab) => {
             const isActive = activeView === tab.id;
