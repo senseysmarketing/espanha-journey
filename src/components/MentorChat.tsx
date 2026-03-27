@@ -15,6 +15,8 @@ const quickActions = [
   { label: "Seguridad Social", milestone: "Seguridad Social" },
   { label: "Conta Bancária", milestone: "Conta Bancária" },
   { label: "Tarjeta Sanitaria", milestone: "Tarjeta Sanitaria" },
+  { label: "Cidades para morar", milestone: "Cidades" },
+  { label: "Custo de vida", milestone: "Custo de vida" },
 ];
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mentor-chat`;
@@ -235,7 +237,7 @@ const MentorChat = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Pergunte ao seu mentor..."
+          placeholder="Pergunte sobre burocracia ou cidades..."
           disabled={isLoading}
           className="flex-1 bg-transparent px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none disabled:opacity-50"
         />
