@@ -2,3 +2,6 @@ project_id = "ovsomeazczfwqcmzvoqu"
 
 [functions.analyze-contract]
 verify_jwt = false
+
+[functions.city-concierge]
+verify_jwt = false
