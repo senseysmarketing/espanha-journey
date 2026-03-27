@@ -14,7 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      documents: {
+        Row: {
+          created_at: string | null
+          expiry_date: string | null
+          file_url: string | null
+          id: string
+          name: string | null
+          status: string | null
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          name?: string | null
+          status?: string | null
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          name?: string | null
+          status?: string | null
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journey_milestones: {
+        Row: {
+          created_at: string | null
+          id: string
+          milestone_name: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          milestone_name?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          milestone_name?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          citizenship_status: string | null
+          created_at: string | null
+          entry_date: string | null
+          id: string
+          selected_profile: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          citizenship_status?: string | null
+          created_at?: string | null
+          entry_date?: string | null
+          id?: string
+          selected_profile?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          citizenship_status?: string | null
+          created_at?: string | null
+          entry_date?: string | null
+          id?: string
+          selected_profile?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      travel_logs: {
+        Row: {
+          created_at: string | null
+          departure_date: string | null
+          destination: string | null
+          id: string
+          return_date: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          departure_date?: string | null
+          destination?: string | null
+          id?: string
+          return_date?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          departure_date?: string | null
+          destination?: string | null
+          id?: string
+          return_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
