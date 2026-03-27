@@ -157,7 +157,7 @@ const MentorChat = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleQuickAction(a)}
-            className="glass-aurora squircle-xs px-3 py-1.5 text-xs font-medium text-foreground"
+            className="glass squircle-xs px-3 py-1.5 text-xs font-medium text-foreground"
           >
             {a.label}
           </motion.button>
@@ -178,13 +178,13 @@ const MentorChat = () => {
               className={`max-w-[85%] p-4 text-sm leading-relaxed ${
                 msg.role === "user"
                   ? "glass rounded-2xl rounded-br-md"
-                  : "glass-aurora rounded-2xl rounded-bl-md"
+                  : "glass rounded-2xl rounded-bl-md"
               }`}
             >
               {msg.role === "assistant" && (
                 <div className="flex items-center gap-1.5 mb-2">
                   <GraduationCap className="w-4 h-4 text-accent" />
-                  <span className="text-xs font-medium text-accent">Mentor</span>
+                  <span className="text-xs font-medium text-primary">Mentor</span>
                 </div>
               )}
               {msg.role === "assistant" ? (
@@ -207,7 +207,7 @@ const MentorChat = () => {
               exit={{ opacity: 0 }}
               className="flex justify-start"
             >
-              <div className="glass-aurora rounded-2xl rounded-bl-md p-4 flex items-center gap-2">
+              <div className="glass rounded-2xl rounded-bl-md p-4 flex items-center gap-2">
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
