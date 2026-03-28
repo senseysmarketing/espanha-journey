@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ const AcademyPass = () => {
             ...m,
             lessons: lessonsData
               .filter((l) => l.module_id === m.id)
-              .map((l) => ({ ...l, chapters: (l.chapters || []) as Chapter[], materials: (l.materials || []) as Material[] })),
+              .map((l) => ({ ...l, chapters: (l.chapters || []) as unknown as Chapter[], materials: (l.materials || []) as unknown as Material[] })),
           })),
       }));
       setCourses(built);
