@@ -10,6 +10,7 @@ import MentorChat from "@/components/MentorChat";
 import ProfileView from "@/components/ProfileView";
 import SecuritySection from "@/components/SecuritySection";
 import ExploreSection from "@/components/ExploreSection";
+import AcademyPass from "@/components/AcademyPass";
 import SVGFilters from "@/components/SVGFilters";
 
 const tabComponents: Record<string, React.FC> = {
@@ -18,6 +19,7 @@ const tabComponents: Record<string, React.FC> = {
   cita: CitaHunter,
   security: SecuritySection,
   explore: ExploreSection,
+  academy: AcademyPass,
   ai: MentorChat,
   profile: ProfileView,
 };
