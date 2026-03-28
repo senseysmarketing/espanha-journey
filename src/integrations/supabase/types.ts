@@ -77,6 +77,33 @@ export type Database = {
         }
         Relationships: []
       }
+      courses: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          thumbnail_url: string | null
+          title: string
+          total_lessons: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title: string
+          total_lessons?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          thumbnail_url?: string | null
+          title?: string
+          total_lessons?: number | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string | null
@@ -136,6 +163,88 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lessons: {
+        Row: {
+          chapters: Json | null
+          created_at: string | null
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          materials: Json | null
+          module_id: string
+          sort_order: number | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          chapters?: Json | null
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          materials?: Json | null
+          module_id: string
+          sort_order?: number | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          chapters?: Json | null
+          created_at?: string | null
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          materials?: Json | null
+          module_id?: string
+          sort_order?: number | null
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       poi_locations: {
         Row: {
@@ -226,6 +335,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          current_time_seconds: number | null
+          id: string
+          lesson_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          current_time_seconds?: number | null
+          id?: string
+          lesson_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          current_time_seconds?: number | null
+          id?: string
+          lesson_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       verified_providers: {
         Row: {
