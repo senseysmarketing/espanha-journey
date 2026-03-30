@@ -12,6 +12,8 @@ import SecuritySection from "@/components/SecuritySection";
 import ExploreSection from "@/components/ExploreSection";
 import AcademyPass from "@/components/AcademyPass";
 import SVGFilters from "@/components/SVGFilters";
+import SubscriptionPaywall from "@/components/SubscriptionPaywall";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const tabComponents: Record<string, React.FC> = {
   journey: JourneyMap,
@@ -28,6 +30,7 @@ const Index = () => {
   const [onboarded, setOnboarded] = useState(false);
   const [activeTab, setActiveTab] = useState("journey");
   const [showClock, setShowClock] = useState(false);
+  const { subscribed, loading: subLoading } = useSubscription();
 
   const handleOnboardingComplete = (profile: string) => {
     setOnboarded(true);
@@ -38,6 +41,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background bg-mesh relative overflow-x-hidden">
       <SVGFilters />
+      {!subLoading && !subscribed && <SubscriptionPaywall />}
 
       <AnimatePresence>
         {!onboarded && (

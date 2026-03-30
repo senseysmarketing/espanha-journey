@@ -286,6 +286,8 @@ export type Database = {
           entry_date: string | null
           id: string
           selected_profile: string | null
+          stripe_customer_id: string | null
+          subscription_status: string | null
           updated_at: string | null
           user_id: string
         }
@@ -295,6 +297,8 @@ export type Database = {
           entry_date?: string | null
           id?: string
           selected_profile?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -304,6 +308,44 @@ export type Database = {
           entry_date?: string | null
           id?: string
           selected_profile?: string | null
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          current_period_end: string | null
+          id: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          current_period_end?: string | null
+          id?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          current_period_end?: string | null
+          id?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
