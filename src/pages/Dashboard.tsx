@@ -12,6 +12,8 @@ import SecuritySection from "@/components/SecuritySection";
 import ExploreSection from "@/components/ExploreSection";
 import AcademyPass from "@/components/AcademyPass";
 import SVGFilters from "@/components/SVGFilters";
+import SubscriptionPaywall from "@/components/SubscriptionPaywall";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const tabComponents: Record<string, React.FC> = {
   journey: JourneyMap,
