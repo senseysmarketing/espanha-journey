@@ -1,41 +1,29 @@
 
 
-## Melhorias na Página de Autenticação
-
-### Problema
-1. Botão "Não tem conta? Crie uma" quase invisível (cor `text-muted-foreground` muito apagada no tema escuro)
-2. Formulário de cadastro idêntico ao de login — causa confusão
-3. "ES" no título em vez da bandeira da Espanha
+## Campo de Telefone com Máscara e Seletor de País
 
 ### Solução
+Criar um componente `PhoneInput` customizado com:
 
-**`src/pages/AuthPage.tsx`**:
+1. **Dropdown de país** — Select estilizado com bandeira emoji + código DDI, países mais relevantes no topo (Brasil 🇧🇷 +55, Espanha 🇪🇸 +34, Portugal 🇵🇹 +351, etc.) seguidos de uma lista completa dos principais países.
 
-1. **Bandeira**: O emoji `🇪🇸` já está no código (linha 69), mas pode estar renderizando como "ES" dependendo da fonte. Substituir por uma imagem SVG da bandeira da Espanha (inline ou via emoji com fallback garantido).
+2. **Máscara de telefone** — Formatação automática do número conforme o país selecionado:
+   - Brasil: `(11) 99999-9999`
+   - Espanha: `612 345 678`
+   - Portugal: `912 345 678`
+   - Padrão genérico para outros países
 
-2. **Botão toggle mais visível**: Trocar `text-muted-foreground` por `text-primary` com underline hover, para ficar claramente clicável.
-
-3. **Formulário de cadastro diferenciado**: Quando `isSignUp === true`, exibir campos extras com animação:
-   - **Nome completo** (text input)
-   - **Telefone** (tel input, com placeholder +34 ou +55)
-   - **Confirmar senha** (password input, com validação client-side)
-   - Subtítulo diferente: "Crie sua conta para começar sua jornada na Espanha"
-   - Validação: confirmar senha deve coincidir antes de submeter
-
-4. **Dados extras no signUp**: Passar `full_name` e `phone` via `options.data` no `supabase.auth.signUp()` para que fiquem salvos nos metadados do usuário.
-
-**Migração SQL** — Adicionar colunas `full_name` e `phone` na tabela `profiles`:
-```sql
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS full_name text,
-  ADD COLUMN IF NOT EXISTS phone text;
-```
-
-Atualizar o trigger de criação de perfil para copiar `full_name` e `phone` dos metadados do auth para a tabela profiles.
+3. **Integração** — O valor salvo no estado `phone` será o número completo com DDI (ex: `+5516994213312`), sem formatação, para armazenamento limpo no banco.
 
 ### Arquivos afetados
+
 | Arquivo | Ação |
 |---|---|
-| `src/pages/AuthPage.tsx` | Modificar — campos extras, botão visível, bandeira |
-| Migração SQL | Criar — colunas full_name e phone em profiles |
+| `src/components/PhoneInput.tsx` | Criar — componente com dropdown de país + máscara |
+| `src/pages/AuthPage.tsx` | Modificar — substituir input de telefone pelo novo `PhoneInput` |
+
+### Detalhes técnicos
+- Sem dependências externas — máscara implementada com lógica pura (regex replace no onChange)
+- Dropdown usando o mesmo estilo `inputClass` do formulário existente, com layout flex para alinhar select + input
+- Lista de ~15 países mais comuns para o público-alvo (LATAM + Europa)
 
