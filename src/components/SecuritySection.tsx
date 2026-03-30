@@ -4,7 +4,9 @@ import { ScanSearch, BarChart3, Users } from "lucide-react";
 import ContractScanner from "./ContractScanner";
 import AuditDashboard from "./AuditDashboard";
 import VerifiedProviders from "./VerifiedProviders";
-
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 type SubView = "scanner" | "audit" | "providers";
 
@@ -17,21 +19,34 @@ const tabs = [
 const SecuritySection = () => {
   const [activeView, setActiveView] = useState<SubView>("scanner");
   const [auditData, setAuditData] = useState<any>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const handleAnalysisComplete = (findings: any) => {
+  const handleAnalysisComplete = async ({ fileName, findings }: { fileName: string; findings: any }) => {
     setAuditData(findings);
     setActiveView("audit");
+
+    if (user) {
+      const { error } = await supabase.from("contracts_audit").insert({
+        user_id: user.id,
+        file_name: fileName,
+        findings_json: findings,
+        status: "completed",
+      });
+      if (error) {
+        console.error("Failed to save audit:", error);
+        toast({ title: "Erro ao salvar auditoria", description: error.message, variant: "destructive" });
+      }
+    }
   };
 
   return (
     <div className="w-full max-w-lg mx-auto px-4 py-8 pb-32 space-y-6">
-      {/* Section header */}
       <div className="text-center">
         <h1 className="text-2xl font-bold text-gradient-primary">Proteção & Segurança</h1>
         <p className="text-muted-foreground text-sm mt-1">Seu anjo da guarda jurídico na Espanha</p>
       </div>
 
-      {/* Glass pill tabs */}
       <div className="flex justify-center">
         <div className="glass squircle-sm inline-flex items-center gap-1 p-1">
           {tabs.map((tab) => {
@@ -63,7 +78,6 @@ const SecuritySection = () => {
         </div>
       </div>
 
-      {/* Sub-view content */}
       <motion.div
         key={activeView}
         initial={{ opacity: 0, y: 15 }}
@@ -73,18 +87,11 @@ const SecuritySection = () => {
         {activeView === "scanner" && (
           <ContractScanner onAnalysisComplete={handleAnalysisComplete} />
         )}
-        {activeView === "audit" && auditData && (
-          <AuditDashboard data={auditData} />
-        )}
-        {activeView === "audit" && !auditData && (
-          <div className="px-6 text-center py-16">
-            <p className="text-muted-foreground">Envie um contrato no Scanner para ver a auditoria.</p>
-          </div>
+        {activeView === "audit" && (
+          <AuditDashboard freshData={auditData} />
         )}
         {activeView === "providers" && <VerifiedProviders />}
       </motion.div>
-
-      
     </div>
   );
 };

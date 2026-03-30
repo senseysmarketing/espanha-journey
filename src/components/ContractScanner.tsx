@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface ContractScannerProps {
-  onAnalysisComplete: (findings: any) => void;
+  onAnalysisComplete: (result: { fileName: string; findings: any }) => void;
 }
 
 const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
@@ -58,7 +58,7 @@ const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
         return;
       }
 
-      onAnalysisComplete(data);
+      onAnalysisComplete({ fileName: file.name, findings: data });
     } catch (err) {
       toast({ title: "Erro", description: "Falha ao processar o arquivo.", variant: "destructive" });
     } finally {
