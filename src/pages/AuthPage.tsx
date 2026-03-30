@@ -155,13 +155,7 @@ const AuthPage = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <label className="block text-sm font-medium text-foreground/80 mb-2">Telefone</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className={inputClass}
-                    placeholder="+55 11 99999-9999"
-                  />
+                  <PhoneInput value={phone} onChange={setPhone} />
                 </motion.div>
               )}
             </AnimatePresence>
