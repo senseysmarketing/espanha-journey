@@ -301,11 +301,7 @@ const CitaHunter = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: 0.06 * i }}
-                className={`squircle-sm p-4 ${
-                  isAvailable
-                    ? "glass-aurora glow-aurora"
-                    : "glass animate-sonar"
-                }`}
+                className="glass squircle-sm p-4"
               >
                 <div className="flex items-start gap-3">
                   {/* Icon */}
