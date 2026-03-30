@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import OnboardingFlow from "@/components/OnboardingFlow";
 import FloatingDock from "@/components/FloatingDock";
@@ -14,8 +14,10 @@ import AcademyPass from "@/components/AcademyPass";
 import SVGFilters from "@/components/SVGFilters";
 import SubscriptionPaywall from "@/components/SubscriptionPaywall";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const tabComponents: Record<string, React.FC> = {
+const tabComponents: Record<string, React.FC<any>> = {
   journey: JourneyMap,
   vault: DocumentVault,
   cita: CitaHunter,
@@ -27,14 +29,59 @@ const tabComponents: Record<string, React.FC> = {
 };
 
 const Index = () => {
-  const [onboarded, setOnboarded] = useState(false);
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("journey");
   const [showClock, setShowClock] = useState(false);
   const { subscribed, loading: subLoading } = useSubscription();
+  const { user } = useAuth();
 
-  const handleOnboardingComplete = (profile: string) => {
+  useEffect(() => {
+    if (!user) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("selected_profile")
+        .eq("user_id", user.id)
+        .single();
+      if (data?.selected_profile) {
+        setSelectedProfile(data.selected_profile);
+        setOnboarded(true);
+      } else {
+        setOnboarded(false);
+      }
+    };
+    fetchProfile();
+  }, [user]);
+
+  const handleOnboardingComplete = async (profile: string) => {
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ selected_profile: profile })
+        .eq("user_id", user.id);
+    }
+    setSelectedProfile(profile);
     setOnboarded(true);
   };
+
+  const handleChangeProfile = async (profile: string) => {
+    if (user) {
+      await supabase
+        .from("profiles")
+        .update({ selected_profile: profile })
+        .eq("user_id", user.id);
+    }
+    setSelectedProfile(profile);
+  };
+
+  if (onboarded === null) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const ActiveComponent = tabComponents[activeTab];
 
@@ -51,7 +98,6 @@ const Index = () => {
 
       {onboarded && (
         <>
-          {/* Top bar with clock toggle */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,7 +117,6 @@ const Index = () => {
             </motion.button>
           </motion.header>
 
-          {/* Main content */}
           <main className="pt-20">
             <AnimatePresence mode="wait">
               {showClock ? (
@@ -92,7 +137,11 @@ const Index = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <ActiveComponent />
+                  {activeTab === "profile" ? (
+                    <ProfileView onChangeProfile={handleChangeProfile} selectedProfile={selectedProfile} />
+                  ) : (
+                    <ActiveComponent />
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
