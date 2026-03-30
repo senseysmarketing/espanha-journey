@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -36,7 +36,7 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
   const [audits, setAudits] = useState<AuditRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAudit, setSelectedAudit] = useState<AuditData | null>(freshData ?? null);
-  const [alertFocused, setAlertFocused] = useState(false);
+  
 
   useEffect(() => {
     if (freshData) {
@@ -64,7 +64,6 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
 
   useEffect(() => {
     if (selectedAudit && selectedAudit.illegal_alerts?.length > 0) {
-      setAlertFocused(true);
       toast({
         title: "⚠️ Cláusulas ilegais detectadas!",
         description: `${selectedAudit.illegal_alerts.length} cláusula(s) potencialmente nula(s) encontrada(s).`,
@@ -108,26 +107,14 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
     return (
       <div className="relative">
         <button
-          onClick={() => { setSelectedAudit(null); setAlertFocused(false); }}
+          onClick={() => setSelectedAudit(null)}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar à lista
         </button>
 
-        <AnimatePresence>
-          {alertFocused && (selectedAudit.illegal_alerts?.length ?? 0) > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-30 backdrop-blur-xl bg-background/30"
-              onClick={() => setAlertFocused(false)}
-            />
-          )}
-        </AnimatePresence>
-
-        <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${alertFocused ? "relative z-40" : ""}`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {columns.map((col, colIdx) => (
             <motion.div
               key={col.title}
