@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
