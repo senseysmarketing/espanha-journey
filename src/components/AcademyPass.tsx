@@ -210,7 +210,7 @@ const AcademyPass = () => {
   // Course detail view
   if (selectedCourse) {
     return (
-      <div className="bg-academy min-h-screen -mt-20 pt-20">
+      <div className="min-h-screen -mt-20 pt-20">
         <div className="max-w-lg mx-auto px-4 pb-32">
           <motion.button
             initial={{ opacity: 0, x: -10 }}
