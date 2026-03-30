@@ -1,127 +1,57 @@
 
 
-## Módulo Academy Pass — Plano de Implementação
+## Landing Page + Reestruturação de Rotas
 
 ### Resumo
-Criar uma área de membros premium com player de vídeo cinematográfico, curriculum roadmap e tracking de progresso, integrada ao Floating Dock e ao Supabase.
+Criar a landing page oficial do Espanha Pass em `/` com estética Apple 2025 Light Mediterranean, e mover o dashboard atual para `/dashboard`.
 
 ---
 
-### 1. Backend — Tabelas Supabase (Migration)
+### 1. Reestruturação de Rotas
 
-Criar 4 tabelas:
+**`src/App.tsx`**: Adicionar rota `/dashboard` apontando para o `Index` atual. A rota `/` passa a renderizar a nova `LandingPage`.
 
-```sql
--- Cursos
-CREATE TABLE courses (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL,
-  description text,
-  thumbnail_url text,
-  total_lessons int DEFAULT 0,
-  created_at timestamptz DEFAULT now()
-);
+**`src/pages/Index.tsx`** → renomear para **`src/pages/Dashboard.tsx`** (mesma lógica, sem alterações internas).
 
--- Módulos dentro de um curso
-CREATE TABLE modules (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  course_id uuid REFERENCES courses(id) ON DELETE CASCADE NOT NULL,
-  title text NOT NULL,
-  description text,
-  sort_order int DEFAULT 0,
-  created_at timestamptz DEFAULT now()
-);
+**`src/pages/LandingPage.tsx`** → novo arquivo, página principal.
 
--- Aulas dentro de um módulo
-CREATE TABLE lessons (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  module_id uuid REFERENCES modules(id) ON DELETE CASCADE NOT NULL,
-  title text NOT NULL,
-  description text,
-  video_url text,
-  duration_seconds int DEFAULT 0,
-  sort_order int DEFAULT 0,
-  chapters jsonb DEFAULT '[]', -- [{title, time_seconds}]
-  materials jsonb DEFAULT '[]', -- [{name, url}]
-  created_at timestamptz DEFAULT now()
-);
+### 2. Landing Page — `src/pages/LandingPage.tsx`
 
--- Progresso do usuário
-CREATE TABLE user_progress (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  lesson_id uuid REFERENCES lessons(id) ON DELETE CASCADE NOT NULL,
-  current_time_seconds int DEFAULT 0,
-  completed boolean DEFAULT false,
-  completed_at timestamptz,
-  updated_at timestamptz DEFAULT now(),
-  UNIQUE(user_id, lesson_id)
-);
-```
+Paleta Light Mediterranean (fundo branco gelo `#FAFAF8`, beges, ocre, azul mar profundo). Todas as seções usam `framer-motion` com reveal-on-scroll (viewport `once: true`, animação de emergir do desfoque).
 
-RLS: `courses`, `modules`, `lessons` — SELECT para authenticated. `user_progress` — full CRUD scoped por `auth.uid() = user_id`.
+**Seções:**
 
-### 2. Navegação — FloatingDock + Index
+1. **Hero Cine** — Headline grande ("Seu anjo da guarda na Espanha"), subtítulo, CTA principal. Abaixo, um "Product Stage" (container glass 3D com `perspective` CSS) simulando o dashboard com animação de mola (`type: "spring"`).
 
-**`FloatingDock.tsx`**: Adicionar item `{ icon: Library, label: "Academy", id: "academy" }` entre "Explorar" e "Mentor".
+2. **Expert Section** — Card glass full-width apresentando o mentor com tipografia elegante e badges de confiança ("Certificado por Gestores Oficiais", "+2.000 brasileiros assessorados").
 
-**`Index.tsx`**: Importar `AcademyPass` e registrar no `tabComponents` como `academy: AcademyPass`.
+3. **Bento Ecosystem** — Grid Bento (2×2 + 1 wide) com cards glass demonstrando Scanner de Contratos IA, Cita Hunter e Nationality Clock. Cada card com ícone animado e descrição.
 
-### 3. Componente Principal — `AcademyPass.tsx`
+4. **Calculadora de Economia** — Widget interativo: checkboxes para serviços (NIE €300, Visto €800, Contrato €400). Soma em tempo real mostrando economia vs. 9,90€/mês. Animação do valor com `motion.span`.
 
-Estado: lista de cursos/módulos/aulas carregados do Supabase + progresso do usuário.
+5. **Interactive FAQ** — Accordion Radix estilizado com glass layers, cantos squircle, transições suaves.
 
-**Vista de listagem (padrão)**:
-- Cards de curso em Liquid Glass (`.glass squircle`) com thumbnail, título, e Progress Ring (SVG circular no estilo Apple Fitness mostrando % completo).
-- Ao clicar num curso, expande módulos em accordion.
-- Ao clicar numa aula, abre a vista de aula com `layoutId` animando o card.
+6. **Sticky CTA Dock** — Dock fixo no bottom que aparece após scroll do hero. Glass bar com "9,90€/mês" e botão "Garantir minha vaga" com glow refraction no hover.
 
-**Vista de aula (expandida)**:
-- Player de vídeo premium + timeline lateral de aulas.
+### 3. Componentes Auxiliares
 
-### 4. Player de Vídeo — `AcademyVideoPlayer.tsx`
+- **`src/components/landing/HeroSection.tsx`**
+- **`src/components/landing/ExpertSection.tsx`**
+- **`src/components/landing/BentoEcosystem.tsx`**
+- **`src/components/landing/SavingsCalculator.tsx`**
+- **`src/components/landing/FAQSection.tsx`**
+- **`src/components/landing/StickyCTADock.tsx`**
 
-- Player HTML5 customizado com overlay de controles translúcidos (`.glass`).
-- Controles: play/pause, barra de progresso com markers de capítulos (lidos do campo `chapters` da lesson), volume, fullscreen.
-- Auto-hide dos controles após 3s de inatividade (onMouseMove reset timer).
-- A cada 10s de reprodução, faz upsert no `user_progress` com `current_time_seconds`.
-- Quando vídeo atinge 90%+, marca como `completed = true` e dispara toast de incentivo do mentor.
+### 4. Navegação
 
-### 5. Curriculum Roadmap — `AcademyTimeline.tsx`
-
-- Timeline lateral (desktop) ou colapsável (mobile) com lista de aulas agrupadas por módulo.
-- Aulas concluídas: ícone de check com brilho aurora (reutiliza `glow-aurora` apenas no ícone de conclusão).
-- Botão "Baixar Materiais" em cada aula: abre `Popover` de vidro com links dos arquivos do campo `materials`.
-
-### 6. Progress Ring — `ProgressRing.tsx`
-
-- Componente SVG circular (estilo Apple Fitness) que recebe `percentage` e renderiza arco animado.
-- Cores: fundo `secondary`, arco `primary` (ocre).
-
-### 7. Estilo Cinema Glass
-
-Adicionar ao `index.css`:
-```css
-.bg-academy {
-  background: linear-gradient(160deg,
-    hsl(220, 30%, 8%) 0%,
-    hsl(215, 25%, 12%) 50%,
-    hsl(32, 40%, 12%) 100%);
-}
-```
-
-O componente `AcademyPass` usa `bg-academy` como wrapper em vez do `bg-mesh` global.
+O CTA "Garantir minha vaga" e o botão do hero usam `useNavigate` para redirecionar a `/dashboard` (onde o onboarding flow já existe).
 
 ### Arquivos afetados
 
 | Arquivo | Ação |
 |---|---|
-| Migration SQL | Criar — 4 tabelas + RLS |
-| `src/components/AcademyPass.tsx` | Criar — módulo principal |
-| `src/components/AcademyVideoPlayer.tsx` | Criar — player premium |
-| `src/components/AcademyTimeline.tsx` | Criar — curriculum roadmap |
-| `src/components/ProgressRing.tsx` | Criar — ring SVG |
-| `src/components/FloatingDock.tsx` | Modificar — adicionar aba Academy |
-| `src/pages/Index.tsx` | Modificar — registrar academy |
-| `src/index.css` | Modificar — adicionar `.bg-academy` |
+| `src/pages/LandingPage.tsx` | Criar |
+| `src/pages/Dashboard.tsx` | Renomear de Index.tsx |
+| `src/components/landing/*.tsx` | Criar (6 componentes) |
+| `src/App.tsx` | Modificar — novas rotas |
 
