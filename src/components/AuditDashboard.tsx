@@ -96,6 +96,7 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
   const [audits, setAudits] = useState<AuditRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAudit, setSelectedAudit] = useState<AuditData | null>(freshData ?? null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (freshData) setSelectedAudit(freshData);
