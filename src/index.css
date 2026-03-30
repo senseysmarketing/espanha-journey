@@ -221,6 +221,16 @@
   filter: url(#liquid-glass-refraction);
 }
 
+/* Sonar animation */
+@keyframes sonar {
+  0% { box-shadow: 0 0 0 0 hsla(32, 95%, 55%, 0.4); }
+  70% { box-shadow: 0 0 0 12px hsla(32, 95%, 55%, 0); }
+  100% { box-shadow: 0 0 0 0 hsla(32, 95%, 55%, 0); }
+}
+.animate-sonar {
+  animation: sonar 2s infinite;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
