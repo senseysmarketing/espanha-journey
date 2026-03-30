@@ -1,9 +1,19 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb } from "lucide-react";
+import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
 interface Finding {
