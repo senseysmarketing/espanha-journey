@@ -1,8 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import SVGFilters from "@/components/SVGFilters";
+
+const SpainFlag = () => (
+  <svg width="36" height="27" viewBox="0 0 36 27" className="inline-block mr-2 rounded-[4px] shadow-sm align-middle" style={{ verticalAlign: 'middle' }}>
+    <rect width="36" height="27" fill="#AA151B" />
+    <rect y="6.75" width="36" height="13.5" fill="#F1BF00" />
+  </svg>
+);
 
 type Currency = "brl" | "eur";
 
@@ -11,6 +20,7 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { session } = useAuth();
+  const navigate = useNavigate();
 
   const handleCheckout = async () => {
     if (!session) return;
@@ -49,8 +59,19 @@ const CheckoutPage = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md z-10"
       >
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors mb-6 text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </button>
+
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">🇪🇸 Espanha Pass</h1>
+          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center">
+            <SpainFlag />
+            Espanha Pass
+          </h1>
           <p className="text-muted-foreground mt-2">Escolha sua moeda e assine</p>
         </div>
 
