@@ -59,8 +59,19 @@ const CheckoutPage = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md z-10"
       >
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors mb-6 text-sm font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </button>
+
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">🇪🇸 Espanha Pass</h1>
+          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center">
+            <SpainFlag />
+            Espanha Pass
+          </h1>
           <p className="text-muted-foreground mt-2">Escolha sua moeda e assine</p>
         </div>
 
