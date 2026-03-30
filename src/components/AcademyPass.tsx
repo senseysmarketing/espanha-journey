@@ -154,7 +154,7 @@ const AcademyPass = () => {
   // Lesson view
   if (selectedCourse && selectedLesson) {
     return (
-      <div className="bg-academy min-h-screen -mt-20 pt-20">
+      <div className="min-h-screen -mt-20 pt-20">
         <div className="max-w-7xl mx-auto px-4 pb-32">
           {/* Back button */}
           <motion.button
