@@ -20,6 +20,7 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { session } = useAuth();
+  const navigate = useNavigate();
 
   const handleCheckout = async () => {
     if (!session) return;
