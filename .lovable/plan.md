@@ -1,42 +1,39 @@
 
 
-## Problema e Diagnóstico
+## Corrigir modal de preview do Cofre de Documentos
 
-A edge function `analyze-document` **analisa apenas o nome do arquivo** (ex: `WhatsApp_Image_2026-03-30_at_16.38.28.jpeg`), não o conteúdo real da imagem. Como o nome não contém "passport" nem a data de vencimento, a IA chuta valores genéricos. Por isso a data de vencimento ficou errada.
+### Problema
+O modal usa `iframe` para exibir o documento, mas para imagens (JPEG, PNG) o iframe renderiza com fundo preto e a imagem fica desalinhada. Além disso, o `DialogContent` não tem `flex flex-col`, então o `flex-1` do container interno não funciona.
 
-### Solução: duas melhorias
+### Solução em `src/components/DocumentVault.tsx`
 
-### 1. Edge Function com OCR real via imagem
+1. **Adicionar `flex flex-col`** ao `DialogContent` para que o layout flexbox funcione
+2. **Detectar se o arquivo é imagem** (jpeg, jpg, png, webp) pela URL ou extensão do `file_url`
+3. **Renderizar `<img>` para imagens** com `object-contain` centralizado, e manter `<iframe>` apenas para PDFs
+4. **Ajustar o container interno** com `overflow-auto` e centralização
 
-Alterar `analyze-document` para receber a **imagem em base64** (ou uma Signed URL do arquivo no storage) e enviá-la ao modelo multimodal (Gemini), que consegue ler o texto do passaporte diretamente da foto.
+### Alteração
 
-**Fluxo:**
-- Frontend gera uma Signed URL do arquivo recém-uploaded
-- Envia `{ fileUrl, fileName }` para a edge function
-- Edge function envia a imagem como `image_url` no prompt multimodal para o Gemini
-- Gemini lê o documento e extrai tipo, nome e data de vencimento real
-- Fallback: se falhar, usa a lógica atual baseada em filename
+```tsx
+// DialogContent: adicionar flex flex-col
+<DialogContent className="max-w-4xl w-[95vw] h-[85vh] p-0 overflow-hidden flex flex-col">
+  <div className="p-4 border-b border-border flex-shrink-0">
+    <h3 className="font-semibold text-foreground">{previewName}</h3>
+  </div>
+  {previewUrl && (
+    <div className="flex-1 min-h-0 flex items-center justify-center p-4 overflow-auto">
+      {/\.(jpe?g|png|webp|gif|bmp)/.test(previewUrl) ? (
+        <img src={previewUrl} alt={previewName} className="max-w-full max-h-full object-contain rounded-lg" />
+      ) : (
+        <iframe src={previewUrl} className="w-full h-full border-0" title={previewName} />
+      )}
+    </div>
+  )}
+</DialogContent>
+```
 
-**Alteração em `supabase/functions/analyze-document/index.ts`:**
-- Aceitar `fileUrl` no body (Signed URL)
-- Montar mensagem multimodal com `image_url` type para o Gemini processar a imagem
-- Prompt instruindo a extrair dados reais do documento (nome, tipo, data de vencimento)
-
-### 2. Botão de renomear documento
-
-Adicionar um botão de edição (ícone Pencil) ao lado dos botões Eye e Trash no card de cada documento.
-
-**Alteração em `src/components/DocumentVault.tsx`:**
-- Adicionar estado `renamingDoc` (doc em edição) e `newName` (texto do input)
-- Ao clicar no Pencil, abrir um Dialog com input de texto preenchido com o nome atual
-- Ao confirmar, executar `supabase.from("documents").update({ name: newName }).eq("id", doc.id)`
-- Atualizar o estado local `documents`
-- Importar `Pencil` do lucide-react
-
-### Arquivos afetados
-
+### Arquivo afetado
 | Arquivo | Ação |
 |---|---|
-| `supabase/functions/analyze-document/index.ts` | Adicionar suporte a análise multimodal de imagem via Signed URL |
-| `src/components/DocumentVault.tsx` | Enviar Signed URL na chamada OCR + adicionar botão/dialog de renomear |
+| `src/components/DocumentVault.tsx` | Corrigir layout do modal de preview e usar `<img>` para imagens |
 
