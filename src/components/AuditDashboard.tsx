@@ -128,6 +128,21 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
     }
   }, [selectedAudit]);
 
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    const { error } = await supabase
+      .from("contracts_audit")
+      .delete()
+      .eq("id", deletingId);
+    if (!error) {
+      setAudits((prev) => prev.filter((a) => a.id !== deletingId));
+      toast({ title: "Auditoria excluída com sucesso." });
+    } else {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    }
+    setDeletingId(null);
+  };
+
   // Detail view
   if (selectedAudit) {
     const columns = [
