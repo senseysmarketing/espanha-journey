@@ -1,9 +1,19 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb } from "lucide-react";
+import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
 interface Finding {
@@ -86,6 +96,7 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
   const [audits, setAudits] = useState<AuditRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAudit, setSelectedAudit] = useState<AuditData | null>(freshData ?? null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (freshData) setSelectedAudit(freshData);
@@ -116,6 +127,21 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
       if ("vibrate" in navigator) navigator.vibrate([50, 100, 50]);
     }
   }, [selectedAudit]);
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    const { error } = await supabase
+      .from("contracts_audit")
+      .delete()
+      .eq("id", deletingId);
+    if (!error) {
+      setAudits((prev) => prev.filter((a) => a.id !== deletingId));
+      toast({ title: "Auditoria excluída com sucesso." });
+    } else {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    }
+    setDeletingId(null);
+  };
 
   // Detail view
   if (selectedAudit) {
@@ -238,10 +264,36 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
                   )}
                 </div>
               </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeletingId(audit.id);
+                }}
+                className="p-2 rounded-lg text-muted-foreground hover:text-coral hover:bg-coral/10 transition-colors shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </motion.button>
         );
       })}
+
+      <AlertDialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir auditoria</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta auditoria? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
