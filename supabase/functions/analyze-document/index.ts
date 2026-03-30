@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName } = await req.json();
+    const { fileName, fileUrl } = await req.json();
     if (!fileName) {
       return new Response(JSON.stringify({ error: "fileName is required" }), {
         status: 400,
@@ -25,7 +25,58 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const prompt = `Analyze this document filename and determine:
+    // Build messages: use multimodal vision if fileUrl is provided
+    const systemMessage = {
+      role: "system",
+      content: "You are a document analysis assistant specialized in immigration documents. Return ONLY valid JSON with no markdown formatting.",
+    };
+
+    const toolDef = {
+      type: "function",
+      function: {
+        name: "extract_document_info",
+        description: "Extract document metadata from the document image or filename",
+        parameters: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              enum: ["passport", "tie", "nie", "empadronamiento", "contrato_trabajo", "other"],
+            },
+            name: { type: "string", description: "Human-readable document name in Portuguese (e.g. 'Passaporte Brasileiro', 'TIE - Tarjeta de Identidad')" },
+            expiry_date: { type: "string", description: "ISO date YYYY-MM-DD of the document expiry/validity date" },
+          },
+          required: ["type", "name", "expiry_date"],
+          additionalProperties: false,
+        },
+      },
+    };
+
+    let userContent: any;
+
+    if (fileUrl) {
+      // Multimodal: send image URL to Gemini for real OCR
+      userContent = [
+        {
+          type: "image_url",
+          image_url: { url: fileUrl },
+        },
+        {
+          type: "text",
+          text: `Analyze this document image carefully. Read ALL text visible in the document.
+
+Extract:
+1. Document type (passport, tie, nie, empadronamiento, contrato_trabajo, or other)
+2. A human-readable name in Portuguese
+3. The EXACT expiry/validity date you can read from the document (look for "Date of expiry", "Fecha de caducidad", "Válido até", "Valid until", etc.)
+
+IMPORTANT: Read the actual dates printed on the document. Do NOT guess or estimate dates.
+The filename is: "${fileName}"`,
+        },
+      ];
+    } else {
+      // Fallback: filename-only analysis
+      userContent = `Analyze this document filename and determine:
 1. The document type (one of: passport, tie, nie, empadronamiento, contrato_trabajo, other)
 2. A human-readable name in Portuguese
 3. An estimated expiry date (ISO format YYYY-MM-DD)
@@ -39,6 +90,7 @@ Based on the filename, infer the document type. For expiry dates:
 - Empadronamiento: valid 3 months from now
 - Work contracts: valid 1 year from now
 - Other: valid 1 year from now`;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -47,36 +99,12 @@ Based on the filename, infer the document type. For expiry dates:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
-          {
-            role: "system",
-            content: "You are a document analysis assistant. Return ONLY valid JSON with no markdown formatting.",
-          },
-          { role: "user", content: prompt },
+          systemMessage,
+          { role: "user", content: userContent },
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "extract_document_info",
-              description: "Extract document metadata from filename",
-              parameters: {
-                type: "object",
-                properties: {
-                  type: {
-                    type: "string",
-                    enum: ["passport", "tie", "nie", "empadronamiento", "contrato_trabajo", "other"],
-                  },
-                  name: { type: "string", description: "Human-readable name in Portuguese" },
-                  expiry_date: { type: "string", description: "ISO date YYYY-MM-DD" },
-                },
-                required: ["type", "name", "expiry_date"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
+        tools: [toolDef],
         tool_choice: { type: "function", function: { name: "extract_document_info" } },
       }),
     });
@@ -85,7 +113,7 @@ Based on the filename, infer the document type. For expiry dates:
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
 
-      // Fallback: return sensible defaults
+      // Fallback defaults
       const now = new Date();
       const oneYearLater = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
       return new Response(
@@ -103,6 +131,7 @@ Based on the filename, infer the document type. For expiry dates:
 
     if (toolCall?.function?.arguments) {
       const parsed = JSON.parse(toolCall.function.arguments);
+      console.log("OCR result:", JSON.stringify(parsed));
       return new Response(JSON.stringify(parsed), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

@@ -10,6 +10,7 @@ import {
   Trash2,
   Loader2,
   XCircle,
+  Pencil,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,6 +18,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -28,6 +32,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Document {
   id: string;
@@ -81,6 +87,8 @@ const DocumentVault = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState<string>("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [renamingDoc, setRenamingDoc] = useState<Document | null>(null);
+  const [newName, setNewName] = useState("");
 
   const fetchDocuments = useCallback(async () => {
     if (!user) return;
@@ -118,7 +126,18 @@ const DocumentVault = () => {
 
       if (uploadError) throw uploadError;
 
-      // Call analyze-document edge function
+      // Generate signed URL for multimodal OCR
+      let fileUrl: string | undefined;
+      try {
+        const { data: signedData } = await supabase.storage
+          .from("vault")
+          .createSignedUrl(filePath, 120);
+        fileUrl = signedData?.signedUrl;
+      } catch (e) {
+        console.warn("Could not generate signed URL for OCR:", e);
+      }
+
+      // Call analyze-document edge function with image URL
       let docMeta = {
         type: "other",
         name: file.name.replace(/\.[^/.]+$/, ""),
@@ -130,7 +149,7 @@ const DocumentVault = () => {
       try {
         const { data: fnData, error: fnError } = await supabase.functions.invoke(
           "analyze-document",
-          { body: { fileName: file.name } }
+          { body: { fileName: file.name, fileUrl } }
         );
         if (!fnError && fnData?.type) {
           docMeta = fnData;
@@ -204,12 +223,10 @@ const DocumentVault = () => {
     const doc = documents.find((d) => d.id === deletingId);
     if (!doc) return;
 
-    // Delete from storage
     if (doc.file_url) {
       await supabase.storage.from("vault").remove([doc.file_url]);
     }
 
-    // Delete from database
     const { error } = await supabase.from("documents").delete().eq("id", deletingId);
     if (!error) {
       setDocuments((prev) => prev.filter((d) => d.id !== deletingId));
@@ -218,6 +235,24 @@ const DocumentVault = () => {
       toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
     }
     setDeletingId(null);
+  };
+
+  const handleRename = async () => {
+    if (!renamingDoc || !newName.trim()) return;
+    const { error } = await supabase
+      .from("documents")
+      .update({ name: newName.trim() })
+      .eq("id", renamingDoc.id);
+    if (!error) {
+      setDocuments((prev) =>
+        prev.map((d) => (d.id === renamingDoc.id ? { ...d, name: newName.trim() } : d))
+      );
+      toast({ title: "Documento renomeado!" });
+    } else {
+      toast({ title: "Erro ao renomear", description: error.message, variant: "destructive" });
+    }
+    setRenamingDoc(null);
+    setNewName("");
   };
 
   const daysUntilExpiry = (date: string | null) => {
@@ -349,6 +384,15 @@ const DocumentVault = () => {
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => {
+                          setRenamingDoc(doc);
+                          setNewName(doc.name || "");
+                        }}
+                        className="w-8 h-8 rounded-xl bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => setDeletingId(doc.id)}
                         className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-coral hover:bg-coral/10 transition-colors"
                       >
@@ -378,6 +422,29 @@ const DocumentVault = () => {
               />
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Dialog */}
+      <Dialog open={!!renamingDoc} onOpenChange={(open) => { if (!open) { setRenamingDoc(null); setNewName(""); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Renomear documento</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Novo nome do documento"
+            onKeyDown={(e) => e.key === "Enter" && handleRename()}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setRenamingDoc(null); setNewName(""); }}>
+              Cancelar
+            </Button>
+            <Button onClick={handleRename} disabled={!newName.trim()}>
+              Salvar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
