@@ -1,46 +1,39 @@
 
 
-## Persistir Perfil e Progresso do Usuário
+## Salvar e Listar Auditorias de Contratos
 
-### Problema
-O perfil selecionado no onboarding (nômade, arraigo, nacionalidade) e o progresso dos checklists são perdidos ao recarregar a página — tudo é armazenado apenas em estado local.
+### Fluxo desejado
+1. Usuário envia contrato no Scanner → IA analisa → resultado aparece automaticamente
+2. O resultado é salvo no banco (`contracts_audit`) com nome do arquivo e findings
+3. Na aba "Auditoria", mostra uma lista dos contratos já analisados
+4. Ao clicar em um contrato da lista, exibe o dashboard de auditoria daquele contrato
 
-### Solução
+### Alterações
 
-**1. Salvar `selected_profile` no Supabase ao completar onboarding**
-- A tabela `profiles` já possui a coluna `selected_profile` — basta usá-la
-- No `Dashboard.tsx`, ao montar, buscar o perfil do usuário via `supabase.from('profiles').select('selected_profile')`
-- Se `selected_profile` já existe, pular o onboarding automaticamente
-- No `handleOnboardingComplete`, fazer `update` na tabela `profiles` com o valor selecionado
+**1. `src/components/ContractScanner.tsx`**
+- Passar o `fileName` junto com os findings no callback `onAnalysisComplete`
+- Callback muda para `onAnalysisComplete({ fileName, findings })`
 
-**2. Persistir checklist da JourneyMap no Supabase**
-- Usar a tabela `journey_milestones` existente para salvar o status de cada milestone e itens marcados
-- No `JourneyMap.tsx`, carregar milestones do usuário ao montar e salvar alterações de checklist via upsert
+**2. `src/components/SecuritySection.tsx`**
+- Após receber análise completa, salvar no Supabase (`contracts_audit`) com `file_name`, `findings_json`, `status: 'completed'` e `user_id`
+- Manter o fluxo atual: análise completa → mostra auditoria automaticamente
 
-**3. Botão "Trocar Caminho" no ProfileView**
-- Adicionar um item de menu "Trocar Caminho" na tela de perfil com ícone de troca
-- Ao clicar, abre um dialog/modal com as 3 opções de perfil (reutilizando o layout do onboarding)
-- Ao confirmar, faz update no `profiles.selected_profile` e recarrega os dados relevantes
-
-**4. Dashboard carrega perfil do Supabase**
-- `Dashboard.tsx` usa `useAuth()` para pegar o `user.id`
-- Faz query ao `profiles` na montagem
-- Se `selected_profile` não é null → seta `onboarded = true` direto
-- Se é null → mostra o OnboardingFlow
-
-### Arquivos afetados
-
-| Arquivo | Ação |
-|---|---|
-| `src/pages/Dashboard.tsx` | Buscar perfil do Supabase, condicionar onboarding |
-| `src/components/OnboardingFlow.tsx` | Salvar `selected_profile` no Supabase ao completar |
-| `src/components/JourneyMap.tsx` | Carregar/salvar checklist items via `journey_milestones` |
-| `src/components/ProfileView.tsx` | Adicionar botão "Trocar Caminho" com dialog de seleção |
+**3. `src/components/AuditDashboard.tsx` → refatorar para dois modos**
+- **Modo lista**: carrega todos os registros de `contracts_audit` do usuário, exibe como cards com nome do arquivo, data e contagem de alertas
+- **Modo detalhe**: ao clicar num card, exibe o dashboard atual (3 colunas) com os dados de `findings_json`
+- Botão "Voltar" para retornar à lista
+- Quando recebe `data` como prop (vindo direto do scanner), mostra o detalhe direto
 
 ### Detalhes técnicos
-- Usar `useAuth()` do `AuthContext` para obter `user.id`
-- Query: `supabase.from('profiles').select('selected_profile').eq('user_id', user.id).single()`
-- Update: `supabase.from('profiles').update({ selected_profile }).eq('user_id', user.id)`
-- Checklist persistence: upsert em `journey_milestones` com `milestone_name` e `status` por `user_id`
-- Dialog de troca usa `Dialog` do shadcn/ui com as mesmas 3 opções visuais do onboarding
+- A tabela `contracts_audit` já existe com as colunas necessárias (`file_name`, `findings_json`, `user_id`, `status`, `created_at`) e RLS configurado
+- Query da lista: `supabase.from('contracts_audit').select('*').eq('user_id', user.id).order('created_at', { ascending: false })`
+- Insert após análise: `supabase.from('contracts_audit').insert({ user_id, file_name, findings_json: findings, status: 'completed' })`
+- Usar `useAuth()` para obter `user.id`
+
+### Arquivos afetados
+| Arquivo | Ação |
+|---|---|
+| `src/components/ContractScanner.tsx` | Incluir fileName no callback |
+| `src/components/SecuritySection.tsx` | Salvar auditoria no Supabase após análise |
+| `src/components/AuditDashboard.tsx` | Adicionar modo lista + modo detalhe |
 
