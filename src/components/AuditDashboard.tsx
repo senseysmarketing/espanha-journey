@@ -114,19 +114,7 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
           Voltar à lista
         </button>
 
-        <AnimatePresence>
-          {alertFocused && (selectedAudit.illegal_alerts?.length ?? 0) > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-30 backdrop-blur-xl bg-background/30"
-              onClick={() => setAlertFocused(false)}
-            />
-          )}
-        </AnimatePresence>
-
-        <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${alertFocused ? "relative z-40" : ""}`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {columns.map((col, colIdx) => (
             <motion.div
               key={col.title}
