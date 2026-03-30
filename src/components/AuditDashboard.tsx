@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -145,14 +146,16 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
 
   // Detail view
   if (selectedAudit) {
-    const columns = [
-      { title: "Cláusulas Seguras", icon: ShieldCheck, items: selectedAudit.safe_clauses || [], colorClass: "text-journey-complete", glowClass: "glow-complete", cardClass: "glass" },
-      { title: "Pontos de Atenção", icon: AlertTriangle, items: selectedAudit.attention_points || [], colorClass: "text-primary", glowClass: "glow-primary", cardClass: "glass" },
-      { title: "Alertas de Ilegalidade", icon: XOctagon, items: selectedAudit.illegal_alerts || [], colorClass: "text-coral", glowClass: "", cardClass: "glass-coral" },
+    const tabs = [
+      { value: "illegal", title: "Ilegais", icon: XOctagon, items: selectedAudit.illegal_alerts || [], colorClass: "text-coral", glowClass: "", cardClass: "glass-coral" },
+      { value: "attention", title: "Atenção", icon: AlertTriangle, items: selectedAudit.attention_points || [], colorClass: "text-primary", glowClass: "glow-primary", cardClass: "glass" },
+      { value: "safe", title: "Seguras", icon: ShieldCheck, items: selectedAudit.safe_clauses || [], colorClass: "text-journey-complete", glowClass: "glow-complete", cardClass: "glass" },
     ];
 
+    const defaultTab = tabs[0].items.length > 0 ? "illegal" : tabs[1].items.length > 0 ? "attention" : "safe";
+
     return (
-      <div className="relative">
+      <div>
         <button
           onClick={() => setSelectedAudit(null)}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
@@ -161,40 +164,37 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
           Voltar à lista
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {columns.map((col, colIdx) => (
-            <motion.div
-              key={col.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: colIdx * 0.15 }}
-              className="space-y-3"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <col.icon className={`w-5 h-5 ${col.colorClass}`} />
-                <h3 className={`font-semibold ${col.colorClass}`}>{col.title}</h3>
-                <span className="text-xs text-muted-foreground">({col.items.length})</span>
-              </div>
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-3 mb-4">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1.5 text-xs">
+                <tab.icon className={`w-3.5 h-3.5 ${tab.colorClass}`} />
+                <span className="hidden sm:inline">{tab.title}</span>
+                <span className="text-[10px] text-muted-foreground">({tab.items.length})</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-              {col.items.length === 0 && (
+          {tabs.map((tab) => (
+            <TabsContent key={tab.value} value={tab.value} className="space-y-3">
+              {tab.items.length === 0 && (
                 <p className="text-muted-foreground text-sm glass squircle-xs p-4">
                   Nenhuma cláusula nesta categoria.
                 </p>
               )}
-
-              {col.items.map((item, idx) => (
+              {tab.items.map((item, idx) => (
                 <FindingCard
                   key={idx}
                   item={item}
-                  colorClass={col.colorClass}
-                  cardClass={col.cardClass}
-                  glowClass={col.glowClass}
-                  delay={colIdx * 0.15 + idx * 0.08}
+                  colorClass={tab.colorClass}
+                  cardClass={tab.cardClass}
+                  glowClass={tab.glowClass}
+                  delay={idx * 0.06}
                 />
               ))}
-            </motion.div>
+            </TabsContent>
           ))}
-        </div>
+        </Tabs>
       </div>
     );
   }
