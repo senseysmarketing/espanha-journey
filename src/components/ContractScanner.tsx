@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface ContractScannerProps {
-  onAnalysisComplete: (findings: any) => void;
+  onAnalysisComplete: (result: { fileName: string; findings: any }) => void;
 }
 
 const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
