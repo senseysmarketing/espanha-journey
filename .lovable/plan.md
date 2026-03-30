@@ -1,23 +1,31 @@
 
 
-## Padronizar cards do Cita Hunter com o restante do app
+## Corrigir tela branca — Duplicate React instance
 
 ### Problema
-Os cards do Cita Hunter usam `glass-aurora` e `glow-aurora` para status "available" e `animate-sonar` para "monitoring", criando uma estética diferente das demais abas (como Jornada) que usam o estilo `glass` padrão.
+O erro `Cannot read properties of null (reading 'useEffect')` no `QueryClientProvider` indica que o Vite está resolvendo duas instâncias diferentes de React (uma para o app, outra para `@tanstack/react-query`). O `dedupe` atual não é suficiente — precisa de aliases explícitos.
 
-### Alterações em `src/components/CitaHunter.tsx`
+### Solução em `vite.config.ts`
 
-1. **Cards de trâmite (linha ~304):** Trocar as classes condicionais:
-   - `glass-aurora glow-aurora` → `glass` (para available)
-   - `glass animate-sonar` → `glass` (para monitoring)
-   - Ambos mantêm `squircle-sm p-4`
+Adicionar aliases explícitos forçando React a resolver sempre do mesmo `node_modules`, e incluir `react`/`react-dom` no `optimizeDeps.include`:
 
-2. **Banner de Insight (linha ~247):** Trocar `glass-aurora` → `glass` para consistência
-
-Os indicadores de status (badge "Disponível" verde, ponto pulsante "Monitorando", botão "Agendar" laranja) permanecem inalterados — apenas o fundo dos cards muda.
+```ts
+resolve: {
+  alias: {
+    "@": path.resolve(__dirname, "./src"),
+    "react": path.resolve(__dirname, "node_modules/react"),
+    "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+  },
+  dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+},
+optimizeDeps: {
+  force: true,
+  include: ["react", "react-dom"],
+},
+```
 
 ### Arquivo afetado
-| Arquivo | Ação |
+| Arquivo | Acao |
 |---|---|
-| `src/components/CitaHunter.tsx` | Substituir `glass-aurora`/`glow-aurora`/`animate-sonar` por `glass` nos cards e banner |
+| `vite.config.ts` | Adicionar aliases para react/react-dom e include no optimizeDeps |
 
