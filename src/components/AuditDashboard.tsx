@@ -64,7 +64,6 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
 
   useEffect(() => {
     if (selectedAudit && selectedAudit.illegal_alerts?.length > 0) {
-      setAlertFocused(true);
       toast({
         title: "⚠️ Cláusulas ilegais detectadas!",
         description: `${selectedAudit.illegal_alerts.length} cláusula(s) potencialmente nula(s) encontrada(s).`,
