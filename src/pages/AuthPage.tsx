@@ -63,7 +63,7 @@ const AuthPage = () => {
       if (error) {
         setError(error.message);
       } else {
-        setSuccess("Verifique seu e-mail para confirmar o cadastro.");
+        navigate("/dashboard");
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
