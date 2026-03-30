@@ -34,7 +34,7 @@ const SubscriptionPaywall = () => {
       >
         <div className="text-5xl">🔒</div>
         <h2 className="text-2xl font-bold text-foreground">Assinatura necessária</h2>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-foreground/70 text-sm">
           Para acessar o dashboard, você precisa de uma assinatura ativa do Espanha Pass.
         </p>
 
