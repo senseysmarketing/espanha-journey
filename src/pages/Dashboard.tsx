@@ -30,6 +30,7 @@ const Index = () => {
   const [onboarded, setOnboarded] = useState(false);
   const [activeTab, setActiveTab] = useState("journey");
   const [showClock, setShowClock] = useState(false);
+  const { subscribed, loading: subLoading } = useSubscription();
 
   const handleOnboardingComplete = (profile: string) => {
     setOnboarded(true);
