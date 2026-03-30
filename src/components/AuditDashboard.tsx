@@ -107,7 +107,7 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
     return (
       <div className="relative">
         <button
-          onClick={() => { setSelectedAudit(null); setAlertFocused(false); }}
+          onClick={() => setSelectedAudit(null)}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
