@@ -1,19 +1,29 @@
 
 
-## Adicionar botão de excluir auditoria com confirmação
+## Ajustar Layout da Auditoria — Vertical → Abas com Scroll
 
-### Alterações em `src/components/AuditDashboard.tsx`
+### Problema
+O layout atual usa `grid-cols-3` no desktop, criando 3 colunas muito estreitas com muito texto empilhado verticalmente. No mobile vira uma coluna infinita. A informação fica difícil de ler.
 
-1. **Importar** `AlertDialog` do shadcn/ui e `Trash2` do lucide-react
-2. **Adicionar estado** `deletingId` para controlar qual auditoria está sendo excluída
-3. **Botão de lixeira** no card de cada auditoria na lista (canto direito), com `e.stopPropagation()` para não abrir o detalhe
-4. **AlertDialog de confirmação** com texto "Tem certeza que deseja excluir esta auditoria?" e botões "Cancelar" / "Excluir"
-5. **Lógica de exclusão**: `supabase.from('contracts_audit').delete().eq('id', deletingId)` seguido de remover do array local `audits`
+### Solução
+Trocar o grid de 3 colunas por **abas horizontais** (Tabs) dentro do container centralizado (`max-w-lg mx-auto`), seguindo o padrão do sistema:
 
-A tabela `contracts_audit` já possui policy de DELETE para o próprio usuário, então não precisa de migration.
+1. **3 abas**: 🟢 Seguras | 🟡 Atenção | 🔴 Ilegais — com contador em cada aba
+2. **Conteúdo em lista vertical** dentro de cada aba, aproveitando toda a largura do container
+3. Cards de findings ficam mais largos e legíveis
+4. Funciona perfeitamente em mobile e desktop
+
+### Alterações em `AuditDashboard.tsx`
+
+- Importar `Tabs, TabsList, TabsTrigger, TabsContent` do shadcn/ui
+- Substituir o `grid grid-cols-1 md:grid-cols-3` por um componente `Tabs` com `defaultValue` apontando para a categoria com mais itens (priorizar "illegal" se houver alertas)
+- Cada `TabsTrigger` mostra ícone + nome + contador
+- Cada `TabsContent` renderiza os `FindingCard`s em lista vertical com `space-y-3`
+- Manter o botão "Voltar à lista" acima das abas
+- O container pai já segue `max-w-lg mx-auto` do sistema
 
 ### Arquivo afetado
 | Arquivo | Ação |
 |---|---|
-| `src/components/AuditDashboard.tsx` | Adicionar botão lixeira + AlertDialog + lógica de delete |
+| `src/components/AuditDashboard.tsx` | Substituir grid por Tabs no detail view |
 
