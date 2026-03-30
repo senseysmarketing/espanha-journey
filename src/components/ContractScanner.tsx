@@ -58,7 +58,7 @@ const ContractScanner = ({ onAnalysisComplete }: ContractScannerProps) => {
         return;
       }
 
-      onAnalysisComplete(data);
+      onAnalysisComplete({ fileName: file.name, findings: data });
     } catch (err) {
       toast({ title: "Erro", description: "Falha ao processar o arquivo.", variant: "destructive" });
     } finally {

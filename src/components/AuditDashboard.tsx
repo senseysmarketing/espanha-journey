@@ -1,7 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, AlertTriangle, XOctagon } from "lucide-react";
+import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { format } from "date-fns";
 
 interface Finding {
   title: string;
@@ -15,109 +18,227 @@ interface AuditData {
   illegal_alerts: Finding[];
 }
 
-interface AuditDashboardProps {
-  data: AuditData;
+interface AuditRecord {
+  id: string;
+  file_name: string | null;
+  findings_json: AuditData;
+  created_at: string | null;
+  status: string | null;
 }
 
-const AuditDashboard = ({ data }: AuditDashboardProps) => {
+interface AuditDashboardProps {
+  freshData?: AuditData | null;
+}
+
+const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [audits, setAudits] = useState<AuditRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedAudit, setSelectedAudit] = useState<AuditData | null>(freshData ?? null);
   const [alertFocused, setAlertFocused] = useState(false);
 
   useEffect(() => {
-    if (data.illegal_alerts.length > 0) {
+    if (freshData) {
+      setSelectedAudit(freshData);
+    }
+  }, [freshData]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchAudits = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("contracts_audit")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setAudits(data as unknown as AuditRecord[]);
+      }
+      setLoading(false);
+    };
+    fetchAudits();
+  }, [user]);
+
+  useEffect(() => {
+    if (selectedAudit && selectedAudit.illegal_alerts?.length > 0) {
       setAlertFocused(true);
       toast({
         title: "⚠️ Cláusulas ilegais detectadas!",
-        description: `${data.illegal_alerts.length} cláusula(s) potencialmente nula(s) encontrada(s).`,
+        description: `${selectedAudit.illegal_alerts.length} cláusula(s) potencialmente nula(s) encontrada(s).`,
         variant: "destructive",
       });
       if ("vibrate" in navigator) {
         navigator.vibrate([50, 100, 50]);
       }
     }
-  }, [data]);
+  }, [selectedAudit]);
 
-  const columns = [
-    {
-      title: "Cláusulas Seguras",
-      icon: ShieldCheck,
-      items: data.safe_clauses,
-      colorClass: "text-journey-complete",
-      glowClass: "glow-complete",
-      cardClass: "glass",
-    },
-    {
-      title: "Pontos de Atenção",
-      icon: AlertTriangle,
-      items: data.attention_points,
-      colorClass: "text-primary",
-      glowClass: "glow-primary",
-      cardClass: "glass",
-    },
-    {
-      title: "Alertas de Ilegalidade",
-      icon: XOctagon,
-      items: data.illegal_alerts,
-      colorClass: "text-coral",
-      glowClass: "",
-      cardClass: "glass-coral",
-    },
-  ];
+  // Detail view
+  if (selectedAudit) {
+    const columns = [
+      {
+        title: "Cláusulas Seguras",
+        icon: ShieldCheck,
+        items: selectedAudit.safe_clauses || [],
+        colorClass: "text-journey-complete",
+        glowClass: "glow-complete",
+        cardClass: "glass",
+      },
+      {
+        title: "Pontos de Atenção",
+        icon: AlertTriangle,
+        items: selectedAudit.attention_points || [],
+        colorClass: "text-primary",
+        glowClass: "glow-primary",
+        cardClass: "glass",
+      },
+      {
+        title: "Alertas de Ilegalidade",
+        icon: XOctagon,
+        items: selectedAudit.illegal_alerts || [],
+        colorClass: "text-coral",
+        glowClass: "",
+        cardClass: "glass-coral",
+      },
+    ];
+
+    return (
+      <div className="relative">
+        <button
+          onClick={() => { setSelectedAudit(null); setAlertFocused(false); }}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar à lista
+        </button>
+
+        <AnimatePresence>
+          {alertFocused && (selectedAudit.illegal_alerts?.length ?? 0) > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-30 backdrop-blur-xl bg-background/30"
+              onClick={() => setAlertFocused(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${alertFocused ? "relative z-40" : ""}`}>
+          {columns.map((col, colIdx) => (
+            <motion.div
+              key={col.title}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: colIdx * 0.15 }}
+              className="space-y-3"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <col.icon className={`w-5 h-5 ${col.colorClass}`} />
+                <h3 className={`font-semibold ${col.colorClass}`}>{col.title}</h3>
+                <span className="text-xs text-muted-foreground">({col.items.length})</span>
+              </div>
+
+              {col.items.length === 0 && (
+                <p className="text-muted-foreground text-sm glass squircle-xs p-4">
+                  Nenhuma cláusula nesta categoria.
+                </p>
+              )}
+
+              {col.items.map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: colIdx * 0.15 + idx * 0.08 }}
+                  className={`${col.cardClass} squircle-sm p-4 ${col.glowClass}`}
+                >
+                  <h4 className={`font-medium text-sm ${col.colorClass} mb-1`}>{item.title}</h4>
+                  <p className="text-foreground/80 text-xs leading-relaxed">{item.description}</p>
+                  {item.law_reference && (
+                    <p className="text-muted-foreground text-[10px] mt-2 italic">📖 {item.law_reference}</p>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // List view
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (audits.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <FileText className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">Nenhuma auditoria ainda.</p>
+        <p className="text-muted-foreground text-sm mt-1">Envie um contrato no Scanner para começar.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative px-4">
-      {/* Background blur overlay when illegal alerts present */}
-      <AnimatePresence>
-        {alertFocused && data.illegal_alerts.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30 backdrop-blur-xl bg-background/30"
-            onClick={() => setAlertFocused(false)}
-          />
-        )}
-      </AnimatePresence>
+    <div className="space-y-3">
+      {audits.map((audit, i) => {
+        const findings = audit.findings_json;
+        const alertCount = findings?.illegal_alerts?.length ?? 0;
+        const attentionCount = findings?.attention_points?.length ?? 0;
+        const safeCount = findings?.safe_clauses?.length ?? 0;
 
-      <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${alertFocused ? "relative z-40" : ""}`}>
-        {columns.map((col, colIdx) => (
-          <motion.div
-            key={col.title}
-            initial={{ opacity: 0, y: 30 }}
+        return (
+          <motion.button
+            key={audit.id}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: colIdx * 0.15 }}
-            className="space-y-3"
+            transition={{ delay: i * 0.05 }}
+            onClick={() => setSelectedAudit(findings)}
+            className="w-full glass squircle-sm p-4 text-left hover:bg-foreground/5 transition-colors"
           >
-            <div className="flex items-center gap-2 mb-4">
-              <col.icon className={`w-5 h-5 ${col.colorClass}`} />
-              <h3 className={`font-semibold ${col.colorClass}`}>{col.title}</h3>
-              <span className="text-xs text-muted-foreground">({col.items.length})</span>
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-foreground truncate">
+                  {audit.file_name || "Contrato sem nome"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {audit.created_at ? format(new Date(audit.created_at), "dd/MM/yyyy 'às' HH:mm") : ""}
+                </p>
+                <div className="flex items-center gap-3 mt-2 text-xs">
+                  {alertCount > 0 && (
+                    <span className="flex items-center gap-1 text-coral">
+                      <XOctagon className="w-3 h-3" /> {alertCount}
+                    </span>
+                  )}
+                  {attentionCount > 0 && (
+                    <span className="flex items-center gap-1 text-primary">
+                      <AlertTriangle className="w-3 h-3" /> {attentionCount}
+                    </span>
+                  )}
+                  {safeCount > 0 && (
+                    <span className="flex items-center gap-1 text-journey-complete">
+                      <ShieldCheck className="w-3 h-3" /> {safeCount}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-
-            {col.items.length === 0 && (
-              <p className="text-muted-foreground text-sm glass squircle-xs p-4">
-                Nenhuma cláusula nesta categoria.
-              </p>
-            )}
-
-            {col.items.map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: colIdx * 0.15 + idx * 0.08 }}
-                className={`${col.cardClass} squircle-sm p-4 ${col.glowClass}`}
-              >
-                <h4 className={`font-medium text-sm ${col.colorClass} mb-1`}>{item.title}</h4>
-                <p className="text-foreground/80 text-xs leading-relaxed">{item.description}</p>
-                {item.law_reference && (
-                  <p className="text-muted-foreground text-[10px] mt-2 italic">📖 {item.law_reference}</p>
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-        ))}
-      </div>
+          </motion.button>
+        );
+      })}
     </div>
   );
 };
