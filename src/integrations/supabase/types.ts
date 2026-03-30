@@ -284,7 +284,9 @@ export type Database = {
           citizenship_status: string | null
           created_at: string | null
           entry_date: string | null
+          full_name: string | null
           id: string
+          phone: string | null
           selected_profile: string | null
           stripe_customer_id: string | null
           subscription_status: string | null
@@ -295,7 +297,9 @@ export type Database = {
           citizenship_status?: string | null
           created_at?: string | null
           entry_date?: string | null
+          full_name?: string | null
           id?: string
+          phone?: string | null
           selected_profile?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
@@ -306,7 +310,9 @@ export type Database = {
           citizenship_status?: string | null
           created_at?: string | null
           entry_date?: string | null
+          full_name?: string | null
           id?: string
+          phone?: string | null
           selected_profile?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
