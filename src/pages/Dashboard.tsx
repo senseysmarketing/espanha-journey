@@ -41,6 +41,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background bg-mesh relative overflow-x-hidden">
       <SVGFilters />
+      {!subLoading && !subscribed && <SubscriptionPaywall />}
 
       <AnimatePresence>
         {!onboarded && (
