@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      cita_monitoring: {
+        Row: {
+          available_date: string | null
+          booking_url: string | null
+          created_at: string | null
+          id: string
+          office_lat: number | null
+          office_lng: number | null
+          office_name: string
+          provincia: string
+          status: string
+          tramite: string
+          updated_at: string | null
+        }
+        Insert: {
+          available_date?: string | null
+          booking_url?: string | null
+          created_at?: string | null
+          id?: string
+          office_lat?: number | null
+          office_lng?: number | null
+          office_name: string
+          provincia: string
+          status?: string
+          tramite: string
+          updated_at?: string | null
+        }
+        Update: {
+          available_date?: string | null
+          booking_url?: string | null
+          created_at?: string | null
+          id?: string
+          office_lat?: number | null
+          office_lng?: number | null
+          office_name?: string
+          provincia?: string
+          status?: string
+          tramite?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       city_data: {
         Row: {
           clima: string | null
@@ -287,11 +329,13 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          provincia: string | null
           selected_profile: string | null
           stripe_customer_id: string | null
           subscription_status: string | null
           updated_at: string | null
           user_id: string
+          whatsapp_alerts: boolean | null
         }
         Insert: {
           citizenship_status?: string | null
@@ -300,11 +344,13 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          provincia?: string | null
           selected_profile?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
           updated_at?: string | null
           user_id: string
+          whatsapp_alerts?: boolean | null
         }
         Update: {
           citizenship_status?: string | null
@@ -313,11 +359,13 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          provincia?: string | null
           selected_profile?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
           updated_at?: string | null
           user_id?: string
+          whatsapp_alerts?: boolean | null
         }
         Relationships: []
       }
