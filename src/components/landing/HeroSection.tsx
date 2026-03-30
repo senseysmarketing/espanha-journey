@@ -99,7 +99,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 + i * 0.15, type: "spring", stiffness: 100 }}
-                className="rounded-2xl landing-glass-refract p-4 text-center"
+                className="rounded-2xl landing-glass p-4 text-center"
               >
                 <item.icon className="w-8 h-8 mx-auto mb-2" style={{ color: item.color }} />
                 <p className="text-sm font-semibold text-[hsl(220,25%,15%)]">{item.label}</p>
