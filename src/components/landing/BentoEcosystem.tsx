@@ -75,7 +75,7 @@ const BentoEcosystem = () => (
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
-          className={`${f.span} group rounded-[28px] border border-[hsla(0,0%,100%,0.5)] bg-white/50 backdrop-blur-xl p-7 shadow-[0_4px_24px_hsla(220,20%,20%,0.06)] hover:shadow-[0_8px_40px_hsla(220,20%,20%,0.1)] transition-shadow duration-300 cursor-default`}
+          className={`${f.span} group rounded-[28px] landing-glass-refract p-7 hover:shadow-[0_8px_40px_hsla(220,20%,20%,0.1)] transition-shadow duration-300 cursor-default`}
         >
           <div
             className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"

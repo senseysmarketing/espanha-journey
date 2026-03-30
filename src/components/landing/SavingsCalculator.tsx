@@ -52,7 +52,7 @@ const SavingsCalculator = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="rounded-[28px] border border-[hsla(0,0%,100%,0.5)] bg-white/50 backdrop-blur-xl shadow-[0_8px_40px_hsla(220,20%,20%,0.07)] p-8"
+        className="rounded-[28px] landing-glass p-8"
       >
         <div className="space-y-3">
           {services.map((s) => {
@@ -85,7 +85,6 @@ const SavingsCalculator = () => {
           })}
         </div>
 
-        {/* Results */}
         <AnimatePresence>
           {selected.size > 0 && (
             <motion.div

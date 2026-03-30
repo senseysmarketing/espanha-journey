@@ -7,12 +7,6 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16 overflow-hidden">
-      {/* Ambient light blobs */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[15%] left-[10%] w-[500px] h-[500px] rounded-full bg-[hsla(32,80%,60%,0.08)] blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] rounded-full bg-[hsla(210,70%,50%,0.06)] blur-[100px]" />
-      </div>
-
       <motion.div
         initial={{ opacity: 0, y: 30, filter: "blur(20px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -48,13 +42,29 @@ const HeroSection = () => {
           transition={{ delay: 0.5, duration: 0.5 }}
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <button
+          {/* CTA with metallic pulse */}
+          <motion.button
             onClick={() => navigate("/dashboard")}
-            className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-[hsl(32,90%,50%)] to-[hsl(25,95%,55%)] text-white font-semibold text-lg shadow-[0_8px_30px_hsla(32,90%,50%,0.35)] hover:shadow-[0_12px_40px_hsla(32,90%,50%,0.5)] transition-all duration-300 hover:scale-[1.02]"
+            animate={{
+              boxShadow: [
+                "0 8px 30px hsla(32,90%,50%,0.35)",
+                "0 12px 50px hsla(32,90%,50%,0.55)",
+                "0 8px 30px hsla(32,90%,50%,0.35)",
+              ],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl text-white font-semibold text-lg transition-all duration-300 hover:scale-[1.02] overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, hsl(32,90%,50%), hsl(25,95%,55%), hsl(32,90%,50%))",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 3s linear infinite",
+            }}
           >
-            Começar agora
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </button>
+            <span className="relative z-10 flex items-center gap-2">
+              Começar agora
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </span>
+          </motion.button>
           <button
             onClick={() => {
               document.getElementById("bento")?.scrollIntoView({ behavior: "smooth" });
@@ -66,7 +76,7 @@ const HeroSection = () => {
         </motion.div>
       </motion.div>
 
-      {/* Product Stage — 3D glass dashboard preview */}
+      {/* Product Stage — glass dashboard preview */}
       <motion.div
         initial={{ opacity: 0, y: 60, rotateX: 8 }}
         animate={{ opacity: 1, y: 0, rotateX: 0 }}
@@ -75,10 +85,9 @@ const HeroSection = () => {
         style={{ perspective: "1200px" }}
       >
         <div
-          className="relative rounded-[32px] border border-[hsla(0,0%,100%,0.5)] bg-white/60 backdrop-blur-xl shadow-[0_20px_80px_hsla(220,30%,20%,0.12),0_0_0_1px_hsla(0,0%,100%,0.6)_inset] p-6 sm:p-10 overflow-hidden"
+          className="relative rounded-[32px] landing-glass p-6 sm:p-10 overflow-hidden"
           style={{ transformStyle: "preserve-3d" }}
         >
-          {/* Simulated dashboard */}
           <div className="grid grid-cols-3 gap-4">
             {[
               { icon: Shield, label: "NIE", status: "Aprovado", color: "hsl(145,60%,42%)" },
@@ -90,7 +99,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 + i * 0.15, type: "spring", stiffness: 100 }}
-                className="rounded-2xl bg-white/80 border border-[hsla(0,0%,0%,0.06)] p-4 text-center"
+                className="rounded-2xl landing-glass-refract p-4 text-center"
               >
                 <item.icon className="w-8 h-8 mx-auto mb-2" style={{ color: item.color }} />
                 <p className="text-sm font-semibold text-[hsl(220,25%,15%)]">{item.label}</p>
@@ -99,7 +108,6 @@ const HeroSection = () => {
             ))}
           </div>
 
-          {/* Glass shimmer overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-white/10 pointer-events-none rounded-[32px]" />
         </div>
       </motion.div>

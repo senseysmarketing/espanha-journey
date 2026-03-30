@@ -52,7 +52,7 @@ const FAQSection = () => (
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true }}
       transition={{ delay: 0.1, duration: 0.6 }}
-      className="rounded-[28px] border border-[hsla(0,0%,100%,0.5)] bg-white/50 backdrop-blur-xl shadow-[0_4px_24px_hsla(220,20%,20%,0.06)] overflow-hidden"
+      className="rounded-[28px] landing-glass overflow-hidden"
     >
       <Accordion type="single" collapsible className="divide-y divide-[hsl(220,15%,92%)]">
         {faqs.map((faq, i) => (
