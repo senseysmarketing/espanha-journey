@@ -14,12 +14,11 @@ const ExpertSection = () => (
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.7 }}
-      className="relative rounded-[32px] border border-[hsla(0,0%,100%,0.45)] bg-white/50 backdrop-blur-2xl shadow-[0_16px_64px_hsla(220,30%,20%,0.08)] p-8 sm:p-14 overflow-hidden"
+      className="relative rounded-[32px] landing-glass-refract p-8 sm:p-14 overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[hsla(32,60%,55%,0.06)] to-transparent pointer-events-none" />
 
       <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-        {/* Avatar */}
         <div className="flex-shrink-0">
           <div className="w-32 h-32 rounded-[28px] bg-gradient-to-br from-[hsl(32,80%,55%)] to-[hsl(25,90%,60%)] flex items-center justify-center shadow-[0_8px_30px_hsla(32,80%,55%,0.3)]">
             <span className="text-5xl">🧑‍💼</span>
