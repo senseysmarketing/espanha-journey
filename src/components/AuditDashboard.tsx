@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2 } from "lucide-react";
+import { ShieldCheck, AlertTriangle, XOctagon, ArrowLeft, FileText, Loader2, Quote, Lightbulb } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,8 +8,11 @@ import { format } from "date-fns";
 
 interface Finding {
   title: string;
-  description: string;
+  description?: string;
   law_reference?: string;
+  extracted_text?: string;
+  legal_analysis?: string;
+  recommendation?: string;
 }
 
 interface AuditData {
@@ -30,18 +33,62 @@ interface AuditDashboardProps {
   freshData?: AuditData | null;
 }
 
+const FindingCard = ({ item, colorClass, cardClass, glowClass, delay }: {
+  item: Finding;
+  colorClass: string;
+  cardClass: string;
+  glowClass: string;
+  delay: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay }}
+    className={`${cardClass} squircle-sm p-4 ${glowClass}`}
+  >
+    <h4 className={`font-medium text-sm ${colorClass} mb-1`}>{item.title}</h4>
+
+    {/* Extracted text as blockquote */}
+    {item.extracted_text && (
+      <div className="flex gap-2 my-2 p-2.5 rounded-lg bg-foreground/5 border-l-2 border-muted-foreground/30">
+        <Quote className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+        <p className="text-foreground/60 text-[11px] italic leading-relaxed">
+          "{item.extracted_text}"
+        </p>
+      </div>
+    )}
+
+    {/* Legal analysis or fallback to description */}
+    <p className="text-foreground/80 text-xs leading-relaxed">
+      {item.legal_analysis || item.description}
+    </p>
+
+    {/* Law reference (legacy) */}
+    {item.law_reference && !item.legal_analysis && (
+      <p className="text-muted-foreground text-[10px] mt-2 italic">📖 {item.law_reference}</p>
+    )}
+
+    {/* Recommendation */}
+    {item.recommendation && (
+      <div className="flex gap-1.5 mt-2.5 p-2 rounded-lg bg-primary/5 border border-primary/10">
+        <Lightbulb className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+        <p className="text-foreground/70 text-[11px] leading-relaxed">
+          {item.recommendation}
+        </p>
+      </div>
+    )}
+  </motion.div>
+);
+
 const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [audits, setAudits] = useState<AuditRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAudit, setSelectedAudit] = useState<AuditData | null>(freshData ?? null);
-  
 
   useEffect(() => {
-    if (freshData) {
-      setSelectedAudit(freshData);
-    }
+    if (freshData) setSelectedAudit(freshData);
   }, [freshData]);
 
   useEffect(() => {
@@ -53,10 +100,7 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-
-      if (!error && data) {
-        setAudits(data as unknown as AuditRecord[]);
-      }
+      if (!error && data) setAudits(data as unknown as AuditRecord[]);
       setLoading(false);
     };
     fetchAudits();
@@ -69,39 +113,16 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
         description: `${selectedAudit.illegal_alerts.length} cláusula(s) potencialmente nula(s) encontrada(s).`,
         variant: "destructive",
       });
-      if ("vibrate" in navigator) {
-        navigator.vibrate([50, 100, 50]);
-      }
+      if ("vibrate" in navigator) navigator.vibrate([50, 100, 50]);
     }
   }, [selectedAudit]);
 
   // Detail view
   if (selectedAudit) {
     const columns = [
-      {
-        title: "Cláusulas Seguras",
-        icon: ShieldCheck,
-        items: selectedAudit.safe_clauses || [],
-        colorClass: "text-journey-complete",
-        glowClass: "glow-complete",
-        cardClass: "glass",
-      },
-      {
-        title: "Pontos de Atenção",
-        icon: AlertTriangle,
-        items: selectedAudit.attention_points || [],
-        colorClass: "text-primary",
-        glowClass: "glow-primary",
-        cardClass: "glass",
-      },
-      {
-        title: "Alertas de Ilegalidade",
-        icon: XOctagon,
-        items: selectedAudit.illegal_alerts || [],
-        colorClass: "text-coral",
-        glowClass: "",
-        cardClass: "glass-coral",
-      },
+      { title: "Cláusulas Seguras", icon: ShieldCheck, items: selectedAudit.safe_clauses || [], colorClass: "text-journey-complete", glowClass: "glow-complete", cardClass: "glass" },
+      { title: "Pontos de Atenção", icon: AlertTriangle, items: selectedAudit.attention_points || [], colorClass: "text-primary", glowClass: "glow-primary", cardClass: "glass" },
+      { title: "Alertas de Ilegalidade", icon: XOctagon, items: selectedAudit.illegal_alerts || [], colorClass: "text-coral", glowClass: "", cardClass: "glass-coral" },
     ];
 
     return (
@@ -136,19 +157,14 @@ const AuditDashboard = ({ freshData }: AuditDashboardProps) => {
               )}
 
               {col.items.map((item, idx) => (
-                <motion.div
+                <FindingCard
                   key={idx}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: colIdx * 0.15 + idx * 0.08 }}
-                  className={`${col.cardClass} squircle-sm p-4 ${col.glowClass}`}
-                >
-                  <h4 className={`font-medium text-sm ${col.colorClass} mb-1`}>{item.title}</h4>
-                  <p className="text-foreground/80 text-xs leading-relaxed">{item.description}</p>
-                  {item.law_reference && (
-                    <p className="text-muted-foreground text-[10px] mt-2 italic">📖 {item.law_reference}</p>
-                  )}
-                </motion.div>
+                  item={item}
+                  colorClass={col.colorClass}
+                  cardClass={col.cardClass}
+                  glowClass={col.glowClass}
+                  delay={colIdx * 0.15 + idx * 0.08}
+                />
               ))}
             </motion.div>
           ))}

@@ -20,16 +20,57 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `Você é um especialista em direito imobiliário espanhol, especialmente na LAU (Ley de Arrendamientos Urbanos) e proteção ao inquilino estrangeiro. Analise o contrato de aluguel fornecido e classifique cada cláusula relevante.
+    const systemPrompt = `Você é um Especialista em Direito Imobiliário Espanhol, com profundo conhecimento da LAU (Ley de Arrendamientos Urbanos) atualizada até 2025/2026 e da Ley 12/2023 de Vivienda.
 
-Regras importantes da LAU para detectar ilegalidades:
-- A taxa da imobiliária (honorarios) deve ser paga pelo proprietário, não pelo inquilino
-- A fianza (caução) não pode exceder 1 mês de aluguel para moradia habitual  
-- Garantias adicionais não podem exceder 2 meses de aluguel
-- O contrato mínimo é de 5 anos (7 se o proprietário for pessoa jurídica)
-- O inquilino pode desistir após 6 meses com aviso prévio de 30 dias
-- Aumentos de aluguel só podem seguir o índice oficial (INE)
-- Cláusulas que renunciam aos direitos do inquilino são nulas
+## Metodologia (Chain of Thought)
+
+Para CADA cláusula relevante do contrato, siga rigorosamente estes passos:
+
+1. **EXTRAIA**: Transcreva o trecho EXATO do contrato que está sendo analisado. Copie palavra por palavra.
+2. **CONFRONTE**: Compare o trecho com a legislação aplicável (LAU, Ley 12/2023 de Vivienda, Código Civil, Constituição Espanhola).
+3. **CLASSIFIQUE**: 
+   - "illegal" → Se contradiz um direito irrenunciável do inquilino ou viola lei imperativa
+   - "attention" → Se é abusivo, desproporcional ou limita direitos de forma questionável
+   - "safe" → Se está em conformidade com a lei
+
+## Verificações Obrigatórias
+
+Você DEVE verificar TODAS as seguintes áreas, mesmo que o contrato não as mencione explicitamente (a ausência de certas cláusulas também pode ser relevante):
+
+### 1. Reparos e Obras (Art. 21 LAU)
+- **Busque**: Cláusulas como "el inquilino se hará cargo de todas las reparaciones", "el arrendatario asumirá los gastos de mantenimiento" ou menção a reparos estruturais (telhados, canos, fachadas, instalações elétricas/hidráulicas).
+- **Regra**: É ILEGAL transferir ao inquilino custos de conservação e habitabilidade. O inquilino só é responsável por pequenos reparos de desgaste pelo uso ordinário (Art. 21.4 LAU). Reparos necessários para manter a habitabilidade são obrigação do proprietário.
+
+### 2. Duração e Prórrogas (Art. 9 e 10 LAU)
+- **Busque**: Contratos de 11 meses ou duração inferior a 1 ano que aparentam ser para moradia habitual, renúncia expressa a prórrogas, cláusulas de término antecipado sem causa.
+- **Regra**: Se o uso é "vivienda habitual", o inquilino tem direito a prorrogação até completar 5 anos (proprietário pessoa física) ou 7 anos (pessoa jurídica), independentemente do que diga o contrato. Qualquer cláusula de renúncia a esse direito é NULA e ILEGAL. Contratos de 11 meses para moradia habitual são fraude à lei.
+
+### 3. Direito de Acesso e Inviolabilidade do Domicílio (Art. 18 Constituição Espanhola)
+- **Busque**: "El arrendador podrá entrar en la vivienda para inspeccionar", "el dueño conserva una llave", "visitas periódicas de inspección", "acceso para comprobación del estado".
+- **Regra**: O domicílio é INVIOLÁVEL (Art. 18.2 CE). O proprietário NÃO pode entrar, reter chaves ou inspecionar sem autorização expressa do inquilino em cada ocasião ou ordem judicial. Qualquer cláusula que conceda acesso livre é ILEGAL.
+
+### 4. Honorários da Agência (Ley 12/2023 de Vivienda)
+- **Busque**: "Honorarios de gestión", "gastos de intermediación", "comisión de la agencia a cargo del arrendatario", "gastos de formalización".
+- **Regra**: Em aluguéis de moradia habitual, a comissão da imobiliária DEVE ser paga exclusivamente pelo proprietário. Cobrar do inquilino é ILEGAL segundo a Ley 12/2023.
+
+### 5. Garantias Financeiras (Art. 36 LAU)
+- **Busque**: Valores de fianza, depósitos, garantias adicionais, avales bancários, seguros de caução.
+- **Regra**: Fianza legal = 1 mês de aluguel (Art. 36.1). Garantias adicionais não podem exceder 2 meses de aluguel em moradia habitual (Art. 36.5). Total máximo = 3 meses. Qualquer valor superior é ILEGAL.
+
+### 6. Restrições de Uso e Convivência
+- **Busque**: Proibições de visitas, restrições a convívio familiar, limitações de horários para uso de áreas comuns, proibição de ter animais sem base legal.
+- **Regra**: Proibir visitas sociais ou convívio familiar fere a liberdade pessoal e o uso pacífico do imóvel. Classificar como ATENÇÃO.
+
+### 7. Atualizações de Aluguel (Art. 18 LAU)
+- **Busque**: Cláusulas de aumento anual, referência a IPC, índices de atualização, aumentos fixos percentuais.
+- **Regra**: Aumentos só podem seguir o índice oficial (INE/IRAV). Aumentos fixos arbitrários ou acima do índice oficial são ATENÇÃO ou ILEGAL.
+
+### 8. Penalizações e Cláusulas Penais
+- **Busque**: Multas por rescisão antecipada, penalizações desproporcionais, perda de fianza como penalidade.
+- **Regra**: O inquilino pode desistir após 6 meses com aviso prévio de 30 dias (Art. 11 LAU). Penalizações desproporcionais são ATENÇÃO. Cláusulas que renunciam a direitos do inquilino são NULAS.
+
+## Idioma
+Responda sempre em PORTUGUÊS DO BRASIL. Os trechos extraídos do contrato devem ser mantidos no idioma original (espanhol).
 
 Use a ferramenta para retornar a análise estruturada.`;
 
@@ -41,57 +82,36 @@ Use a ferramenta para retornar a análise estruturada.`;
       },
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
+        reasoning: { effort: "high" },
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Analise este contrato de aluguel espanhol:\n\n${text.slice(0, 15000)}` },
+          { role: "user", content: `Analise este contrato de aluguel espanhol em profundidade. Verifique TODAS as 8 áreas obrigatórias:\n\n${text.slice(0, 15000)}` },
         ],
         tools: [
           {
             type: "function",
             function: {
               name: "report_analysis",
-              description: "Retorna a análise estruturada do contrato",
+              description: "Retorna a análise jurídica estruturada do contrato",
               parameters: {
                 type: "object",
                 properties: {
-                  safe_clauses: {
+                  findings: {
                     type: "array",
                     items: {
                       type: "object",
                       properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
-                        law_reference: { type: "string" },
+                        title: { type: "string", description: "Nome curto da cláusula analisada" },
+                        status: { type: "string", enum: ["safe", "attention", "illegal"], description: "Classificação da cláusula" },
+                        extracted_text: { type: "string", description: "Trecho EXATO copiado do contrato (em espanhol)" },
+                        legal_analysis: { type: "string", description: "Explicação em português citando o Artigo da Lei aplicável" },
+                        recommendation: { type: "string", description: "O que o inquilino deve dizer ou fazer para negociar" },
                       },
-                      required: ["title", "description"],
-                    },
-                  },
-                  attention_points: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
-                        law_reference: { type: "string" },
-                      },
-                      required: ["title", "description"],
-                    },
-                  },
-                  illegal_alerts: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
-                        law_reference: { type: "string" },
-                      },
-                      required: ["title", "description"],
+                      required: ["title", "status", "extracted_text", "legal_analysis", "recommendation"],
                     },
                   },
                 },
-                required: ["safe_clauses", "attention_points", "illegal_alerts"],
+                required: ["findings"],
               },
             },
           },
@@ -126,8 +146,43 @@ Use a ferramenta para retornar a análise estruturada.`;
       });
     }
 
-    const findings = JSON.parse(toolCall.function.arguments);
-    return new Response(JSON.stringify(findings), {
+    const { findings } = JSON.parse(toolCall.function.arguments);
+
+    // Convert unified findings to legacy format for backward compatibility
+    const safe_clauses = findings
+      .filter((f: any) => f.status === "safe")
+      .map((f: any) => ({
+        title: f.title,
+        description: f.legal_analysis || f.description,
+        law_reference: undefined,
+        extracted_text: f.extracted_text,
+        legal_analysis: f.legal_analysis,
+        recommendation: f.recommendation,
+      }));
+
+    const attention_points = findings
+      .filter((f: any) => f.status === "attention")
+      .map((f: any) => ({
+        title: f.title,
+        description: f.legal_analysis || f.description,
+        law_reference: undefined,
+        extracted_text: f.extracted_text,
+        legal_analysis: f.legal_analysis,
+        recommendation: f.recommendation,
+      }));
+
+    const illegal_alerts = findings
+      .filter((f: any) => f.status === "illegal")
+      .map((f: any) => ({
+        title: f.title,
+        description: f.legal_analysis || f.description,
+        law_reference: undefined,
+        extracted_text: f.extracted_text,
+        legal_analysis: f.legal_analysis,
+        recommendation: f.recommendation,
+      }));
+
+    return new Response(JSON.stringify({ safe_clauses, attention_points, illegal_alerts }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
