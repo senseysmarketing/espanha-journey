@@ -1,15 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import SVGFilters from "@/components/SVGFilters";
 
+const SpainFlag = () => (
+  <svg width="36" height="27" viewBox="0 0 36 27" className="inline-block mr-2 rounded-[4px] shadow-sm align-middle" style={{ verticalAlign: 'middle' }}>
+    <rect width="36" height="27" fill="#AA151B" />
+    <rect y="6.75" width="36" height="13.5" fill="#F1BF00" />
+  </svg>
+);
+
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -27,10 +37,27 @@ const AuthPage = () => {
     setSuccess("");
 
     if (isSignUp) {
+      if (password !== confirmPassword) {
+        setError("As senhas não coincidem.");
+        setLoading(false);
+        return;
+      }
+      if (!fullName.trim()) {
+        setError("Preencha seu nome completo.");
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin },
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            full_name: fullName.trim(),
+            phone: phone.trim(),
+          },
+        },
       });
       if (error) {
         setError(error.message);
@@ -47,6 +74,9 @@ const AuthPage = () => {
     }
     setLoading(false);
   };
+
+  const inputClass =
+    "w-full px-4 py-3 rounded-2xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all";
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4">
@@ -66,15 +96,42 @@ const AuthPage = () => {
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">🇪🇸 Espanha Pass</h1>
+          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center">
+            <SpainFlag />
+            Espanha Pass
+          </h1>
           <p className="text-muted-foreground mt-2">
-            {isSignUp ? "Crie sua conta" : "Entre na sua conta"}
+            {isSignUp
+              ? "Crie sua conta para começar sua jornada na Espanha"
+              : "Entre na sua conta"}
           </p>
         </div>
 
         {/* Glass card */}
         <div className="landing-glass rounded-3xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
+            <AnimatePresence mode="popLayout">
+              {isSignUp && (
+                <motion.div
+                  key="fullName"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">Nome completo</label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={isSignUp}
+                    className={inputClass}
+                    placeholder="Maria Silva"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div>
               <label className="block text-sm font-medium text-foreground/80 mb-2">E-mail</label>
               <input
@@ -82,10 +139,32 @@ const AuthPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-2xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                className={inputClass}
                 placeholder="seu@email.com"
               />
             </div>
+
+            <AnimatePresence mode="popLayout">
+              {isSignUp && (
+                <motion.div
+                  key="phone"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">Telefone</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className={inputClass}
+                    placeholder="+55 11 99999-9999"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div>
               <label className="block text-sm font-medium text-foreground/80 mb-2">Senha</label>
               <input
@@ -94,10 +173,33 @@ const AuthPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 rounded-2xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                className={inputClass}
                 placeholder="••••••••"
               />
             </div>
+
+            <AnimatePresence mode="popLayout">
+              {isSignUp && (
+                <motion.div
+                  key="confirmPassword"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">Confirmar senha</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required={isSignUp}
+                    minLength={6}
+                    className={inputClass}
+                    placeholder="••••••••"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {error && (
               <motion.p
@@ -133,7 +235,7 @@ const AuthPage = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => { setIsSignUp(!isSignUp); setError(""); setSuccess(""); }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors font-medium"
             >
               {isSignUp ? "Já tem conta? Entre aqui" : "Não tem conta? Crie uma"}
             </button>
