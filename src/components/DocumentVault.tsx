@@ -409,17 +409,17 @@ const DocumentVault = () => {
 
       {/* Preview Dialog */}
       <Dialog open={!!previewUrl} onOpenChange={(open) => !open && setPreviewUrl(null)}>
-        <DialogContent className="max-w-4xl w-[95vw] h-[85vh] p-0 overflow-hidden">
-          <div className="p-4 border-b border-border">
+        <DialogContent className="max-w-4xl w-[95vw] h-[85vh] p-0 overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-border flex-shrink-0">
             <h3 className="font-semibold text-foreground">{previewName}</h3>
           </div>
           {previewUrl && (
-            <div className="flex-1 w-full h-full min-h-0">
-              <iframe
-                src={previewUrl}
-                className="w-full h-full border-0"
-                title={previewName}
-              />
+            <div className="flex-1 min-h-0 flex items-center justify-center p-4 overflow-auto">
+              {/\.(jpe?g|png|webp|gif|bmp)/i.test(previewUrl) ? (
+                <img src={previewUrl} alt={previewName} className="max-w-full max-h-full object-contain rounded-lg" />
+              ) : (
+                <iframe src={previewUrl} className="w-full h-full border-0" title={previewName} />
+              )}
             </div>
           )}
         </DialogContent>
