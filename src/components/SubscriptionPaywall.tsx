@@ -2,10 +2,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SubscriptionPaywall = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleManage = async () => {
     setLoading(true);
@@ -56,6 +58,15 @@ const SubscriptionPaywall = () => {
             className="w-full py-3 rounded-2xl border border-border text-foreground/70 text-sm font-medium hover:bg-secondary/50 transition-colors disabled:opacity-50"
           >
             {loading ? "Carregando..." : "Regularizar assinatura"}
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={async () => { await signOut(); navigate("/"); }}
+            className="w-full py-3 rounded-2xl text-muted-foreground text-sm font-medium hover:text-foreground transition-colors"
+          >
+            Sair da conta
           </motion.button>
         </div>
       </motion.div>
