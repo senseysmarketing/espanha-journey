@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const SubscriptionPaywall = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleManage = async () => {
     setLoading(true);
