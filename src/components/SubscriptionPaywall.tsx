@@ -59,6 +59,15 @@ const SubscriptionPaywall = () => {
           >
             {loading ? "Carregando..." : "Regularizar assinatura"}
           </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={async () => { await signOut(); navigate("/"); }}
+            className="w-full py-3 rounded-2xl text-muted-foreground text-sm font-medium hover:text-foreground transition-colors"
+          >
+            Sair da conta
+          </motion.button>
         </div>
       </motion.div>
     </motion.div>
