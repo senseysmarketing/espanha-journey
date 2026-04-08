@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Map, FolderLock, Bell, Shield, Globe, BookOpen, GraduationCap, User } from "lucide-react";
+import { Map, FolderLock, Bell, Shield, Globe, BookOpen, GraduationCap, User, CalendarDays } from "lucide-react";
 
 const dockItems = [
   { icon: Map, label: "Jornada", id: "journey" },
   { icon: FolderLock, label: "Cofre", id: "vault" },
   { icon: Bell, label: "Cita", id: "cita" },
+  { icon: CalendarDays, label: "Eventos", id: "events" },
   { icon: Shield, label: "Segurança", id: "security" },
   { icon: Globe, label: "Explorar", id: "explore" },
   { icon: BookOpen, label: "Academy", id: "academy" },

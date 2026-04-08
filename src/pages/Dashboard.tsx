@@ -11,6 +11,7 @@ import ProfileView from "@/components/ProfileView";
 import SecuritySection from "@/components/SecuritySection";
 import ExploreSection from "@/components/ExploreSection";
 import AcademyPass from "@/components/AcademyPass";
+import EventsSection from "@/components/EventsSection";
 import SVGFilters from "@/components/SVGFilters";
 import SubscriptionPaywall from "@/components/SubscriptionPaywall";
 import { useSubscription } from "@/hooks/useSubscription";
