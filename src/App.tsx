@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import CheckoutPage from "./pages/CheckoutPage.tsx";
+import ConsultoriaPage from "./pages/ConsultoriaPage.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
