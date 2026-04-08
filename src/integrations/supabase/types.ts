@@ -179,6 +179,92 @@ export type Database = {
         }
         Relationships: []
       }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          stripe_payment_id: string | null
+          ticket_code: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          ticket_code?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          ticket_code?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          category: string
+          created_at: string
+          currency: string
+          date: string
+          description: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          max_capacity: number | null
+          price_cents: number
+          recurrence: string | null
+          stripe_price_id: string | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          currency?: string
+          date: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          max_capacity?: number | null
+          price_cents?: number
+          recurrence?: string | null
+          stripe_price_id?: string | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          currency?: string
+          date?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          max_capacity?: number | null
+          price_cents?: number
+          recurrence?: string | null
+          stripe_price_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       journey_milestones: {
         Row: {
           created_at: string | null
