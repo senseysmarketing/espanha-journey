@@ -1,0 +1,2 @@
+UPDATE public.events SET stripe_price_id = 'price_1TK017FjQUFfbIeCMMAxepb0' WHERE category = 'formacao';
+UPDATE public.events SET stripe_price_id = 'price_1TK01cFjQUFfbIeCDz2ZWeg6' WHERE category = 'jantar';
