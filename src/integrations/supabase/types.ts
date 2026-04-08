@@ -292,6 +292,27 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_clicks: {
+        Row: {
+          created_at: string
+          funnel: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          funnel: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          funnel?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           chapters: Json | null
