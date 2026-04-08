@@ -14,7 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'sans-serif'],
+        sans: ['Philosopher', 'Georgia', 'serif'],
+        heading: ['Unbounded', 'sans-serif'],
+        body: ['Philosopher', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,6 +53,7 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         coral: "hsl(var(--coral))",
+        warm: "hsl(var(--warm))",
         journey: {
           pending: "hsl(var(--journey-pending))",
           active: "hsl(var(--journey-active))",
@@ -94,8 +97,8 @@ export default {
           "100%": { transform: "translate(var(--tx), var(--ty)) scale(0)", opacity: "0" },
         },
         "scan-line": {
-          "0%": { background: "linear-gradient(180deg, transparent 0%, hsla(32,95%,55%,0.15) 50%, transparent 100%)", backgroundPosition: "0 -100%" },
-          "100%": { background: "linear-gradient(180deg, transparent 0%, hsla(32,95%,55%,0.15) 50%, transparent 100%)", backgroundPosition: "0 200%" },
+          "0%": { background: "linear-gradient(180deg, transparent 0%, hsla(17,100%,30%,0.15) 50%, transparent 100%)", backgroundPosition: "0 -100%" },
+          "100%": { background: "linear-gradient(180deg, transparent 0%, hsla(17,100%,30%,0.15) 50%, transparent 100%)", backgroundPosition: "0 200%" },
         },
       },
       animation: {
