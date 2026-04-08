@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Map, BarChart3, Plane } from "lucide-react";
+import { Map, BarChart3, Plane, Home } from "lucide-react";
 import ExploreMap from "./ExploreMap";
 import NeighborhoodCompare from "./NeighborhoodCompare";
 import FlightSearch from "./FlightSearch";
+import RelocationFunnel from "./RelocationFunnel";
 
 const tabs = [
   { id: "mapa", label: "Mapa", icon: Map },
   { id: "bairros", label: "Bairros", icon: BarChart3 },
+  { id: "relocation", label: "Relocation", icon: Home },
   { id: "passagens", label: "Passagens", icon: Plane },
 ];
 
 const tabContent: Record<string, React.FC> = {
   mapa: ExploreMap,
   bairros: NeighborhoodCompare,
+  relocation: RelocationFunnel,
   passagens: FlightSearch,
 };
 
@@ -29,7 +32,7 @@ const ExploreSection = () => {
         animate={{ opacity: 1, y: 0 }}
         className="mb-6"
       >
-        <h1 className="text-2xl font-bold text-foreground mb-1">Explorar Espanha</h1>
+        <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Explorar Espanha</h1>
         <p className="text-sm text-muted-foreground">Descubra sua cidade ideal para viver</p>
       </motion.div>
 
