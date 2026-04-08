@@ -22,6 +22,7 @@ const tabComponents: Record<string, React.FC<any>> = {
   journey: JourneyMap,
   vault: DocumentVault,
   cita: CitaHunter,
+  events: EventsSection,
   security: SecuritySection,
   explore: ExploreSection,
   academy: AcademyPass,
