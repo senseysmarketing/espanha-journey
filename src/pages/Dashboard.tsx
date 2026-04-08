@@ -105,7 +105,7 @@ const Index = () => {
             className="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex items-center justify-between"
           >
             <div>
-              <h2 className="text-lg font-bold text-gradient-primary">Espanha Pass</h2>
+              <h2 className="text-lg font-bold font-heading text-gradient-primary">Instituto Empuria</h2>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}

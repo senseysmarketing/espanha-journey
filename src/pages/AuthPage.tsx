@@ -7,13 +7,6 @@ import { useEffect } from "react";
 import SVGFilters from "@/components/SVGFilters";
 import PhoneInput from "@/components/PhoneInput";
 
-const SpainFlag = () => (
-  <svg width="36" height="27" viewBox="0 0 36 27" className="inline-block mr-2 rounded-[4px] shadow-sm align-middle" style={{ verticalAlign: 'middle' }}>
-    <rect width="36" height="27" fill="#AA151B" />
-    <rect y="6.75" width="36" height="13.5" fill="#F1BF00" />
-  </svg>
-);
-
 const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
@@ -83,7 +76,6 @@ const AuthPage = () => {
     <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4">
       <SVGFilters />
 
-      {/* Mesh gradient blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
@@ -95,11 +87,9 @@ const AuthPage = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md z-10"
       >
-        {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center">
-            <SpainFlag />
-            Espanha Pass
+          <h1 className="font-heading text-3xl font-bold text-foreground">
+            Instituto Empuria
           </h1>
           <p className="text-muted-foreground mt-2">
             {isSignUp
@@ -108,7 +98,6 @@ const AuthPage = () => {
           </p>
         </div>
 
-        {/* Glass card */}
         <div className="landing-glass rounded-3xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <AnimatePresence mode="popLayout">
