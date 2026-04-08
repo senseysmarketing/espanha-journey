@@ -6,13 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import SVGFilters from "@/components/SVGFilters";
 
-const SpainFlag = () => (
-  <svg width="36" height="27" viewBox="0 0 36 27" className="inline-block mr-2 rounded-[4px] shadow-sm align-middle" style={{ verticalAlign: 'middle' }}>
-    <rect width="36" height="27" fill="#AA151B" />
-    <rect y="6.75" width="36" height="13.5" fill="#F1BF00" />
-  </svg>
-);
-
 type Currency = "brl" | "eur";
 
 const CheckoutPage = () => {
@@ -68,15 +61,13 @@ const CheckoutPage = () => {
         </button>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center">
-            <SpainFlag />
-            Espanha Pass
+          <h1 className="font-heading text-3xl font-bold text-foreground">
+            Instituto Empuria
           </h1>
           <p className="text-muted-foreground mt-2">Escolha sua moeda e assine</p>
         </div>
 
         <div className="landing-glass rounded-3xl p-8 space-y-6">
-          {/* Segmented Control */}
           <div className="relative flex rounded-2xl bg-secondary/50 p-1">
             <motion.div
               className="absolute top-1 bottom-1 rounded-xl bg-primary/20 border border-primary/30"
@@ -96,7 +87,6 @@ const CheckoutPage = () => {
             ))}
           </div>
 
-          {/* Features */}
           <ul className="space-y-3 text-sm text-foreground/80">
             {[
               "Jornada completa NIE → Nacionalidade",

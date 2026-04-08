@@ -8,8 +8,8 @@ import {
 
 const faqs = [
   {
-    q: "O Espanha Pass substitui um advogado de imigração?",
-    a: "O Espanha Pass é uma ferramenta de orientação inteligente que automatiza tarefas burocráticas e fornece informações atualizadas. Para casos legais complexos, recomendamos consultar um profissional — e nosso Mentor IA pode indicar gestores verificados.",
+    q: "O Instituto Empuria substitui um advogado de imigração?",
+    a: "O Instituto Empuria é uma plataforma de orientação inteligente que automatiza tarefas burocráticas e fornece informações atualizadas. Para casos legais complexos, recomendamos consultar um profissional — e nosso Mentor IA pode indicar gestores verificados.",
   },
   {
     q: "Como funciona o Scanner de Contratos IA?",
@@ -42,7 +42,7 @@ const FAQSection = () => (
       transition={{ duration: 0.5 }}
       className="text-center mb-12"
     >
-      <h2 className="text-3xl sm:text-4xl font-bold text-[hsl(220,25%,12%)] tracking-tight">
+      <h2 className="font-heading text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
         Perguntas Frequentes
       </h2>
     </motion.div>
@@ -54,13 +54,13 @@ const FAQSection = () => (
       transition={{ delay: 0.1, duration: 0.6 }}
       className="rounded-[28px] landing-glass overflow-hidden"
     >
-      <Accordion type="single" collapsible className="divide-y divide-[hsl(220,15%,92%)]">
+      <Accordion type="single" collapsible className="divide-y divide-border">
         {faqs.map((faq, i) => (
           <AccordionItem key={i} value={`faq-${i}`} className="border-b-0">
-            <AccordionTrigger className="px-7 py-5 text-left text-[hsl(220,25%,15%)] font-medium hover:no-underline hover:text-[hsl(32,80%,50%)] transition-colors [&[data-state=open]]:text-[hsl(32,80%,50%)]">
+            <AccordionTrigger className="px-7 py-5 text-left text-foreground font-medium hover:no-underline hover:text-primary transition-colors [&[data-state=open]]:text-primary">
               {faq.q}
             </AccordionTrigger>
-            <AccordionContent className="px-7 pb-5 text-[hsl(220,10%,45%)] leading-relaxed">
+            <AccordionContent className="px-7 pb-5 text-muted-foreground leading-relaxed">
               {faq.a}
             </AccordionContent>
           </AccordionItem>

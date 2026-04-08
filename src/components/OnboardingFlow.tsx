@@ -95,7 +95,7 @@ const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                   transition={{ delay: 0.3 }}
                   className="text-4xl font-bold tracking-tight mb-3"
                 >
-                  <span className="text-gradient-primary">Espanha Pass</span>
+                  <span className="text-gradient-primary">Instituto Empuria</span>
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0 }}

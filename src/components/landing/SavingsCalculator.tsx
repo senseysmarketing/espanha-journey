@@ -39,10 +39,10 @@ const SavingsCalculator = () => {
         transition={{ duration: 0.7 }}
         className="text-center mb-12"
       >
-        <h2 className="text-3xl sm:text-4xl font-bold text-[hsl(220,25%,12%)] tracking-tight">
+        <h2 className="font-heading text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
           Calculadora de Economia
         </h2>
-        <p className="mt-4 text-[hsl(220,10%,45%)] text-lg">
+        <p className="mt-4 text-muted-foreground text-lg">
           Selecione os serviços que você precisaria contratar com advogados.
         </p>
       </motion.div>
@@ -63,23 +63,23 @@ const SavingsCalculator = () => {
                 onClick={() => toggle(s.id)}
                 className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all duration-200 text-left ${
                   isActive
-                    ? "border-[hsl(32,80%,55%)] bg-[hsla(32,80%,55%,0.08)]"
-                    : "border-[hsl(220,15%,90%)] bg-white/60 hover:bg-white/80"
+                    ? "border-primary bg-primary/8"
+                    : "border-border bg-background/60 hover:bg-background/80"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
                       isActive
-                        ? "bg-[hsl(32,80%,55%)] text-white"
-                        : "bg-[hsl(220,15%,92%)]"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary"
                     }`}
                   >
                     {isActive && <Check className="w-4 h-4" />}
                   </div>
-                  <span className="font-medium text-[hsl(220,25%,15%)]">{s.label}</span>
+                  <span className="font-medium text-foreground">{s.label}</span>
                 </div>
-                <span className="text-[hsl(220,10%,45%)] font-medium">€{s.cost}</span>
+                <span className="text-muted-foreground font-medium">€{s.cost}</span>
               </button>
             );
           })}
@@ -94,28 +94,28 @@ const SavingsCalculator = () => {
               transition={{ duration: 0.4 }}
               className="overflow-hidden"
             >
-              <div className="mt-8 pt-6 border-t border-[hsl(220,15%,90%)]">
+              <div className="mt-8 pt-6 border-t border-border">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[hsl(220,10%,45%)]">Com advogados tradicionais</span>
-                  <span className="text-xl font-bold text-[hsl(0,60%,50%)] line-through">
+                  <span className="text-muted-foreground">Com advogados tradicionais</span>
+                  <span className="text-xl font-bold text-destructive line-through">
                     €{totalTraditional}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[hsl(220,10%,45%)]">Com Espanha Pass (anual)</span>
-                  <span className="text-xl font-bold text-[hsl(145,60%,38%)]">
+                  <span className="text-muted-foreground">Com Instituto Empuria (anual)</span>
+                  <span className="text-xl font-bold text-journey-complete">
                     €{annualCost.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pt-4 border-t border-[hsl(220,15%,90%)]">
-                  <span className="text-lg font-semibold text-[hsl(220,25%,12%)]">
+                <div className="flex justify-between items-center pt-4 border-t border-border">
+                  <span className="text-lg font-semibold text-foreground">
                     Você economiza
                   </span>
                   <motion.span
                     key={savings}
                     initial={{ scale: 1.2, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-2xl font-extrabold text-[hsl(145,60%,38%)]"
+                    className="text-2xl font-extrabold text-journey-complete"
                   >
                     €{savings > 0 ? savings.toFixed(2) : "0.00"}
                   </motion.span>

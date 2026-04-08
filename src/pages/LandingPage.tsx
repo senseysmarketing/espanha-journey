@@ -17,32 +17,32 @@ const LandingPage = () => {
 
   return (
     <div
-      className="relative min-h-screen bg-[#FAFAF8] overflow-x-hidden"
+      className="relative min-h-screen bg-background overflow-x-hidden"
       onMouseMove={handlePointer}
       onTouchMove={handlePointer}
     >
       <SVGFilters />
 
-      {/* Mesh gradient blobs */}
+      {/* Mesh gradient blobs — warm tones */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div
           className="absolute top-[10%] left-[5%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-100"
           style={{
-            background: "hsla(32,70%,55%,0.12)",
+            background: "hsla(17,80%,30%,0.1)",
             animation: "mesh-float-1 20s ease-in-out infinite alternate",
           }}
         />
         <div
           className="absolute top-[40%] right-[5%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-100"
           style={{
-            background: "hsla(210,60%,50%,0.08)",
+            background: "hsla(21,80%,41%,0.07)",
             animation: "mesh-float-2 18s ease-in-out infinite alternate",
           }}
         />
         <div
           className="absolute bottom-[10%] left-[30%] w-[450px] h-[450px] rounded-full blur-[120px] opacity-100"
           style={{
-            background: "hsla(15,50%,50%,0.06)",
+            background: "hsla(33,73%,62%,0.06)",
             animation: "mesh-float-3 22s ease-in-out infinite alternate",
           }}
         />
@@ -52,7 +52,7 @@ const LandingPage = () => {
       <div
         className="absolute pointer-events-none z-[1] w-[300px] h-[300px] rounded-full blur-[80px] transition-opacity duration-300"
         style={{
-          background: "radial-gradient(circle, hsla(32,80%,55%,0.15), hsla(210,60%,55%,0.08), transparent 70%)",
+          background: "radial-gradient(circle, hsla(17,80%,30%,0.12), hsla(21,80%,41%,0.06), transparent 70%)",
           left: glow.x - 150,
           top: glow.y - 150,
           opacity: glow.x === 0 ? 0 : 1,
@@ -67,9 +67,9 @@ const LandingPage = () => {
         <FAQSection />
         <StickyCTADock />
 
-        <footer className="py-12 px-6 text-center border-t border-[hsl(220,15%,92%)]">
-          <p className="text-sm text-[hsl(220,10%,55%)]">
-            © 2025 Espanha Pass. Todos os direitos reservados.
+        <footer className="py-12 px-6 text-center border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            © 2025 Instituto Empuria. Todos os direitos reservados.
           </p>
         </footer>
       </div>
