@@ -11,6 +11,12 @@ const corsHeaders = {
 const PRICE_EUR = "price_1TK1YKFjQUFfbIeCethkQfcL";
 const PRICE_BRL = "price_1TK1cyFjQUFfbIeCZhLL7DxA";
 
+// Consultoria: 100€ = 10000 cents / R$600 = 60000 cents
+const AMOUNT_CENTS: Record<string, number> = {
+  eur: 10000,
+  brl: 60000,
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -30,6 +36,7 @@ serve(async (req) => {
 
     const { currency = "eur" } = await req.json();
     const priceId = currency === "brl" ? PRICE_BRL : PRICE_EUR;
+    const amountCents = AMOUNT_CENTS[currency] || AMOUNT_CENTS.eur;
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -39,6 +46,27 @@ serve(async (req) => {
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+    }
+
+    // Generate transfer_group for traceability
+    const transferGroup = `cons_${user.id.slice(0, 8)}_${crypto.randomUUID().slice(0, 8)}`;
+
+    // Look up mentor's connected account
+    // For consultoria, we look for any connected account marked as mentor
+    // In the future this could be parameterized per mentor
+    const { data: connectedAccount } = await supabaseClient
+      .from("connected_accounts")
+      .select("stripe_account_id")
+      .eq("onboarding_complete", true)
+      .limit(1)
+      .maybeSingle();
+
+    let transferData: { destination: string; amount: number } | undefined;
+    if (connectedAccount?.stripe_account_id) {
+      transferData = {
+        destination: connectedAccount.stripe_account_id,
+        amount: Math.round(amountCents * 0.85),
+      };
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -51,18 +79,19 @@ serve(async (req) => {
       metadata: {
         user_id: user.id,
         type: "consultoria",
+        transfer_group: transferGroup,
+      },
+      payment_intent_data: {
+        transfer_group: transferGroup,
+        ...(transferData ? { transfer_data: transferData } : {}),
       },
     });
 
-    // Create purchase record
-    const schedulingToken = crypto.randomUUID();
-    const schedulingUrl = `https://calendly.com/instituto-empuria/consultoria?token=${schedulingToken}`;
-
+    // Create purchase record with status "pending" (webhook will confirm)
     await supabaseClient.from("consultoria_purchases").insert({
       user_id: user.id,
       stripe_session_id: session.id,
-      scheduling_url: schedulingUrl,
-      status: "paid",
+      status: "pending",
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

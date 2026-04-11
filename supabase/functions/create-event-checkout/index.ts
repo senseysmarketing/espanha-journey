@@ -45,7 +45,7 @@ serve(async (req) => {
         .from("event_rsvps")
         .select("*", { count: "exact", head: true })
         .eq("event_id", event_id)
-        .in("status", ["confirmed", "paid"]);
+        .in("status", ["confirmed", "paid", "pending"]);
 
       if (count !== null && count >= event.max_capacity) {
         return new Response(
@@ -67,8 +67,29 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
+    // Generate transfer_group for traceability
+    const transferGroup = `evt_${event_id}_${crypto.randomUUID().slice(0, 8)}`;
+
+    // Look up organizer's connected account for transfer
+    let transferData: { destination: string; amount: number } | undefined;
+    if (event.organizer_user_id) {
+      const { data: connectedAccount } = await supabaseClient
+        .from("connected_accounts")
+        .select("stripe_account_id")
+        .eq("user_id", event.organizer_user_id)
+        .eq("onboarding_complete", true)
+        .maybeSingle();
+
+      if (connectedAccount?.stripe_account_id) {
+        transferData = {
+          destination: connectedAccount.stripe_account_id,
+          amount: Math.round(event.price_cents * 0.85),
+        };
+      }
+    }
+
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: event.stripe_price_id, quantity: 1 }],
@@ -78,16 +99,24 @@ serve(async (req) => {
       metadata: {
         event_id,
         user_id: user.id,
+        type: "event",
+        transfer_group: transferGroup,
       },
-    });
+      payment_intent_data: {
+        transfer_group: transferGroup,
+        ...(transferData ? { transfer_data: transferData } : {}),
+      },
+    };
 
-    // Create pending RSVP
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    // Create pending RSVP (status "pending" until webhook confirms)
     const ticketCode = crypto.randomUUID().slice(0, 8).toUpperCase();
     await supabaseClient.from("event_rsvps").upsert(
       {
         event_id,
         user_id: user.id,
-        status: "paid",
+        status: "pending",
         stripe_payment_id: session.id,
         ticket_code: ticketCode,
       },
