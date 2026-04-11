@@ -1,225 +1,93 @@
 
 
-## Rebranding Instituto Empuria — Plano de Implementação em 5 Fases
+# Fase 5 — Implementacao com Refinamentos de Seguranca
 
-Este é um projeto extenso. Recomendo implementar fase por fase, validando cada uma antes de avançar.
+## Resumo dos refinamentos incorporados
 
----
-
-### Fase 1: Design System e Identidade Visual
-
-**Tipografia** — Substituir Inter por Unbounded (títulos) e Philosopher (corpo):
-- `src/index.css`: trocar import do Google Fonts para `Unbounded:wght@400;600;700;800;900` e `Philosopher:wght@400;700`
-- `tailwind.config.ts`: adicionar `fontFamily.heading: ['Unbounded', ...]` e `fontFamily.body: ['Philosopher', ...]`, manter `sans` como Philosopher
-- Atualizar `body` no CSS para usar Philosopher; headings receberão `font-heading`
-
-**Paleta de Cores** — Novas variáveis CSS baseadas no manual:
-| Token | Hex | HSL aprox. |
-|---|---|---|
-| Vermelho (primary) | #9b2c00 | 17 100% 30% |
-| Marrom (dark) | #4d1a00 | 20 100% 15% |
-| Laranja (accent) | #cf4700 | 21 100% 41% |
-| Amarelo (warm) | #e5a657 | 33 73% 62% |
-| Off White (bg) | #ffffff / #FAFAF8 | mantém |
-
-- Atualizar `:root` em `index.css` com novos valores para `--primary`, `--accent`, `--background`, `--foreground`, `--card`, etc.
-- Atualizar tokens `--glass-*` para tons quentes (marrom/laranja em vez de azul)
-- Gradientes: de `hsl(32,90%,50%)→hsl(25,95%,55%)` para `#9b2c00→#cf4700`
-
-**Componentes** — Atualizar referências de cor hardcoded:
-- `HeroSection.tsx`: textos, badges, gradientes
-- `BentoEcosystem.tsx`: cores dos cards
-- `LandingPage.tsx`: mesh gradient blobs
-- `StickyCTADock.tsx`, `ExpertSection.tsx`, `FAQSection.tsx`
-- `SubscriptionPaywall.tsx`, `CheckoutPage.tsx`: branding "Instituto Empuria" + tipografia
-- `Dashboard.tsx` header: "Espanha Pass" → "Instituto Empuria"
-- `FloatingDock.tsx`, `OnboardingFlow.tsx`: textos de marca
-
-**Arquivos afetados Fase 1:**
-| Arquivo | Ação |
-|---|---|
-| `src/index.css` | Nova paleta, fontes, tokens glass |
-| `tailwind.config.ts` | fontFamily heading/body |
-| `src/components/landing/HeroSection.tsx` | Rebrand texto + cores |
-| `src/components/landing/BentoEcosystem.tsx` | Cores dos cards |
-| `src/components/landing/ExpertSection.tsx` | Rebrand |
-| `src/components/landing/StickyCTADock.tsx` | Rebrand |
-| `src/components/landing/FAQSection.tsx` | Rebrand |
-| `src/components/landing/SavingsCalculator.tsx` | Rebrand |
-| `src/pages/LandingPage.tsx` | Mesh gradients + footer |
-| `src/pages/CheckoutPage.tsx` | "Instituto Empuria" |
-| `src/pages/Dashboard.tsx` | Header rebrand |
-| `src/components/SubscriptionPaywall.tsx` | Rebrand |
-| `src/components/OnboardingFlow.tsx` | Rebrand |
-| `src/pages/AuthPage.tsx` | Rebrand |
+1. **Check de Estoque**: `create-event-checkout` ja valida capacidade (linhas 43-56), mas o RSVP e gravado como "paid" antes do pagamento ser confirmado. Corrigir para status "pending" no checkout, e so mudar para "paid" no webhook.
+2. **Transfer Group**: Adicionar `transfer_group` a todas as sessoes de checkout para vincular cobranca a transferencia (essencial para estornos).
+3. **Arredondamento de Moeda**: Usar `Math.round(amount * 0.85)` em todos os calculos de split para evitar decimais.
+4. **Protecao da Agenda**: O `scheduling_url` so sera gravado apos confirmacao do webhook (nao no momento do checkout). O RLS ja garante que so o proprio usuario ve seus registros em `consultoria_purchases`.
 
 ---
 
-### Fase 2: Módulo de Eventos e Comunidade
+## Fase 1: Migration + Edge Function de Onboarding
 
-**Database** — Migration SQL:
+### 1.1 Migration SQL — Tabela `connected_accounts`
+
 ```sql
-CREATE TABLE public.events (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL,
-  description text,
-  category text NOT NULL, -- 'resenha' | 'formacao' | 'jantar'
-  date timestamptz NOT NULL,
-  location text,
-  price_cents integer DEFAULT 0,
-  currency text DEFAULT 'eur',
-  max_capacity integer,
-  stripe_price_id text,
-  image_url text,
-  recurrence text, -- 'biweekly_sunday' | null
-  created_at timestamptz DEFAULT now()
-);
-
-CREATE TABLE public.event_rsvps (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_id uuid REFERENCES public.events(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL,
-  status text DEFAULT 'confirmed', -- 'confirmed' | 'paid' | 'cancelled'
-  stripe_payment_id text,
-  ticket_code text,
-  created_at timestamptz DEFAULT now(),
-  UNIQUE(event_id, user_id)
-);
-```
-+ RLS policies para cada tabela + INSERT de dados iniciais dos 3 eventos.
-
-**Edge Function** `create-event-checkout`:
-- Recebe `event_id`, valida capacidade (count RSVPs vs max_capacity)
-- Se esgotado, retorna erro
-- Cria Stripe Checkout session com o `stripe_price_id` do evento
-- Success URL grava RSVP com status `paid` e gera `ticket_code` (UUID curto)
-
-**Stripe**: Criar 2 products/prices:
-- Formação João Sericato: 200€ (one-time)
-- Jantar de Integração: 60€ (one-time)
-
-**Frontend** — Novo componente `src/components/EventsSection.tsx`:
-- 3 cards (Resenha, Formação, Jantar)
-- Resenha: botão "Confirmar Presença" → insert direto no `event_rsvps`
-- Formação/Jantar: botão de checkout → edge function
-- Jantar: consultar contagem de RSVPs, mostrar vagas restantes, desativar se 0
-
-**Integração**: Adicionar tab "Eventos" no `FloatingDock` e no `Dashboard`.
-
-**Arquivos afetados Fase 2:**
-| Arquivo | Ação |
-|---|---|
-| Migration SQL | Tabelas events + event_rsvps |
-| `supabase/functions/create-event-checkout/index.ts` | Novo |
-| `src/components/EventsSection.tsx` | Novo |
-| `src/components/FloatingDock.tsx` | Nova tab eventos |
-| `src/pages/Dashboard.tsx` | Registar componente |
-
----
-
-### Fase 3: Funil de Relocation (Lead Qualification)
-
-**Frontend** — Novo componente `src/components/RelocationFunnel.tsx`:
-- Video player (embed YouTube/Vimeo ou `<video>`) com conteúdo educacional
-- Texto explicativo sobre regras de Relocation
-- CTA principal: botão WhatsApp com link `https://wa.me/NUMERO?text=Olá, venho pelo Instituto Empuria e tenho interesse no Relocation. O meu ID é %23{user_id}`
-- Ao clicar, registar evento na tabela `lead_clicks`
-
-**Database** — Migration:
-```sql
-CREATE TABLE public.lead_clicks (
+CREATE TABLE public.connected_accounts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
-  funnel text NOT NULL, -- 'relocation' | 'consultoria'
+  stripe_account_id text NOT NULL UNIQUE,
+  onboarding_complete boolean DEFAULT false,
+  account_type text DEFAULT 'express',
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE public.connected_accounts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own connected account"
+  ON public.connected_accounts FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own connected account"
+  ON public.connected_accounts FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own connected account"
+  ON public.connected_accounts FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = user_id);
 ```
 
-**Remover** qualquer checkout/pagamento existente da página Explorar que esteja ligado a Relocation.
+### 1.2 Edge Function `onboard-mentor`
 
-**Arquivos afetados Fase 3:**
-| Arquivo | Ação |
-|---|---|
-| Migration SQL | Tabela lead_clicks |
-| `src/components/RelocationFunnel.tsx` | Novo |
-| `src/components/FloatingDock.tsx` | Atualizar tab explore |
-| `src/pages/Dashboard.tsx` | Registar componente |
+Nova funcao em `supabase/functions/onboard-mentor/index.ts`:
+- Recebe `user_id` do usuario autenticado
+- Cria conta Express via `stripe.accounts.create({ type: 'express' })`
+- Insere registro na tabela `connected_accounts`
+- Gera link de onboarding via `stripe.accountLinks.create()` com `return_url` e `refresh_url` apontando para o dashboard
+- Retorna a URL de onboarding
 
----
+### 1.3 Correcoes nas funcoes existentes (refinamentos de seguranca)
 
-### Fase 4: Ecossistema do Mentor
+**`create-event-checkout`** — Alteracoes:
+- Mudar o status do RSVP de "paid" para "pending" (pagamento ainda nao confirmado)
+- Adicionar `transfer_group: \`evt_${event_id}_${crypto.randomUUID().slice(0,8)}\`` na sessao
+- Buscar `connected_accounts` do organizador do evento (requer coluna `organizer_user_id` na tabela `events` — adicionar na migration)
+- Calcular transfer: `Math.round(event.price_cents * 0.85)`
+- Adicionar `payment_intent_data.transfer_data` com destination e amount
 
-**4A — Consultoria Individual (100€ / R$600)**
+**`create-consultoria-checkout`** — Alteracoes:
+- Mudar status inicial do insert para "pending" (nao "paid")
+- Remover geracao do `scheduling_url` (sera feito pelo webhook)
+- Adicionar `transfer_group` na sessao
+- Adicionar `payment_intent_data.transfer_data` com destination do mentor e `Math.round(amount * 0.85)`
 
-- Criar product+price no Stripe (100€ one-time + R$600 one-time)
-- Nova página `src/pages/ConsultoriaPage.tsx`: landing específica com vídeo, depoimentos, CTA checkout
-- Edge function `create-consultoria-checkout`: cria session Stripe, success_url aponta para dashboard
-- Pós-compra: edge function (ou webhook simplificado) grava na tabela `consultoria_purchases` e gera link único de agendamento
-- Dashboard mostra link de agendamento se compra existir
-
-**4B — Clube do Imigrante (Subscription)**
-
-- Reaproveitar a lógica existente de `check-subscription` / `create-checkout`
-- Atualizar price IDs para os novos produtos "Instituto Empuria"
-- RLS policies condicionais: conteúdos premium liberados apenas para subscribers ativos
-
-**Database** — Migration:
-```sql
-CREATE TABLE public.consultoria_purchases (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  stripe_session_id text,
-  scheduling_url text,
-  status text DEFAULT 'pending',
-  created_at timestamptz DEFAULT now()
-);
-```
-
-**Arquivos afetados Fase 4:**
-| Arquivo | Ação |
-|---|---|
-| Migration SQL | Tabela consultoria_purchases |
-| `src/pages/ConsultoriaPage.tsx` | Novo |
-| `supabase/functions/create-consultoria-checkout/index.ts` | Novo |
-| `src/App.tsx` | Nova rota /consultoria |
-| `src/hooks/useSubscription.ts` | Atualizar price IDs |
-
----
-
-### Fase 5: Regras de Comissionamento (Edge Functions)
-
-**Pré-requisito**: Stripe Connect deve estar ativado na conta Stripe com "Separate Charges and Transfers".
-
-- Atualizar `create-event-checkout` para incluir `transfer_group` na session
-- Criar edge function `process-transfer` que, após pagamento confirmado:
-  - Calcula split (ex: 70% plataforma, 30% parceiro)
-  - Executa `stripe.transfers.create()` com `destination` (connected account ID) e `transfer_group`
-- Tabela de configuração:
+### 1.4 Migration adicional — Coluna `organizer_user_id` em `events`
 
 ```sql
-CREATE TABLE public.commission_rules (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_id uuid REFERENCES public.events(id),
-  partner_stripe_account text NOT NULL,
-  percentage numeric NOT NULL, -- ex: 30.00
-  created_at timestamptz DEFAULT now()
-);
+ALTER TABLE public.events 
+  ADD COLUMN organizer_user_id uuid;
 ```
 
-- Registar cada transfer na tabela `commission_logs` para auditoria
-
-**Arquivos afetados Fase 5:**
-| Arquivo | Ação |
-|---|---|
-| Migration SQL | Tabelas commission_rules + commission_logs |
-| `supabase/functions/process-transfer/index.ts` | Novo |
-| `supabase/functions/create-event-checkout/index.ts` | Adicionar transfer_group |
+Necessaria para vincular eventos a connected accounts dos organizadores.
 
 ---
 
-### Ordem de execução recomendada
+## Arquivos afetados
 
-Fase 1 primeiro (base visual), depois Fase 2 (eventos), Fase 3 (relocation), Fase 4 (mentor), Fase 5 (comissões). Cada fase será implementada e validada antes de avançar para a próxima.
+| Arquivo | Acao |
+|---|---|
+| Migration SQL | Tabela `connected_accounts` + coluna `organizer_user_id` em events |
+| `supabase/functions/onboard-mentor/index.ts` | Novo |
+| `supabase/functions/create-event-checkout/index.ts` | Atualizar com transfer_data, transfer_group, status pending |
+| `supabase/functions/create-consultoria-checkout/index.ts` | Atualizar com transfer_data, transfer_group, remover scheduling_url |
 
-Confirme se posso iniciar pela **Fase 1**.
+## Prerequisito
+
+Antes de implementar o `transfer_data`, preciso saber: voce ja tem um `stripe_account_id` de teste (connected account) para usar no desenvolvimento? Caso contrario, a funcao `onboard-mentor` sera usada para criar um.
 
