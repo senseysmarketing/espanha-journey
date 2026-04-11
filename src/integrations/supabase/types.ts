@@ -92,6 +92,33 @@ export type Database = {
         }
         Relationships: []
       }
+      connected_accounts: {
+        Row: {
+          account_type: string | null
+          created_at: string | null
+          id: string
+          onboarding_complete: boolean | null
+          stripe_account_id: string
+          user_id: string
+        }
+        Insert: {
+          account_type?: string | null
+          created_at?: string | null
+          id?: string
+          onboarding_complete?: boolean | null
+          stripe_account_id: string
+          user_id: string
+        }
+        Update: {
+          account_type?: string | null
+          created_at?: string | null
+          id?: string
+          onboarding_complete?: boolean | null
+          stripe_account_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       consultoria_purchases: {
         Row: {
           created_at: string
@@ -255,6 +282,7 @@ export type Database = {
           image_url: string | null
           location: string | null
           max_capacity: number | null
+          organizer_user_id: string | null
           price_cents: number
           recurrence: string | null
           stripe_price_id: string | null
@@ -270,6 +298,7 @@ export type Database = {
           image_url?: string | null
           location?: string | null
           max_capacity?: number | null
+          organizer_user_id?: string | null
           price_cents?: number
           recurrence?: string | null
           stripe_price_id?: string | null
@@ -285,6 +314,7 @@ export type Database = {
           image_url?: string | null
           location?: string | null
           max_capacity?: number | null
+          organizer_user_id?: string | null
           price_cents?: number
           recurrence?: string | null
           stripe_price_id?: string | null
